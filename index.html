@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Star Wars Timeline Deck</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --void:#0A0E15;
+  --hull:#111823;
+  --hull-2:#161F2C;
+  --edge:#26313F;
+  --bone:#E9E5DA;
+  --dim:#7B8899;
+
+  --accent:#3F7FD1;          /* driven by era, set at runtime */
+  --accent-soft:rgba(63,127,209,.16);
+
+  --cardw:260px;
+  --gap:28px;
+  --step:288px;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --dur:520ms;
+
+  --f-display:"Big Shoulders Display","Haettenschweiler","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{height:100%}
+body{
+  background:var(--void);
+  color:var(--bone);
+  font-family:var(--f-body);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ambient field — accent-tinted, shifts with era */
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background:
+    radial-gradient(120% 70% at 50% 110%, var(--accent-soft), transparent 60%),
+    radial-gradient(80% 50% at 50% -10%, rgba(255,255,255,.04), transparent 70%);
+  transition:background 700ms linear;
+  pointer-events:none;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.deck-head{
+  position:relative;z-index:3;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:24px;flex-wrap:wrap;
+  padding:16px 28px;
+  border-bottom:1px solid var(--edge);
+}
+.wordmark{
+  font-family:var(--f-display);
+  font-size:22px;font-weight:800;
+  letter-spacing:.14em;text-transform:uppercase;
+  line-height:1;
+}
+.wordmark span{color:var(--accent);transition:color 500ms linear}
+
+.switches{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.seg{display:flex;border:1px solid var(--edge);border-radius:2px;overflow:hidden}
+.seg button{
+  appearance:none;background:transparent;border:0;
+  color:var(--dim);
+  font-family:var(--f-mono);font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:9px 14px;cursor:pointer;
+  transition:background 180ms,color 180ms;
+}
+.seg button + button{border-left:1px solid var(--edge)}
+.seg button:hover{color:var(--bone);background:var(--hull-2)}
+.seg button[aria-pressed="true"]{color:var(--void);background:var(--accent)}
+.seg button:focus-visible{outline:2px solid var(--bone);outline-offset:-2px}
+
+.ghost-btn{
+  appearance:none;background:transparent;
+  border:1px solid var(--edge);border-radius:2px;
+  color:var(--dim);
+  font-family:var(--f-mono);font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:9px 14px;cursor:pointer;
+  transition:color 180ms,border-color 180ms;
+}
+.ghost-btn:hover{color:var(--bone);border-color:var(--bone)}
+.ghost-btn:focus-visible{outline:2px solid var(--bone);outline-offset:2px}
+
+/* ============================================================
+   STAGE
+   ============================================================ */
+.stage{
+  position:relative;z-index:2;
+  flex:1;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:26px;
+  padding:24px 0 8px;
+}
+
+.rail-window{
+  position:relative;
+  width:100%;
+  height:calc(var(--cardw) * 1.5 + 40px);
+  overflow:hidden;
+  /* feathered edges so off-screen cards fade instead of clipping */
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);
+}
+.rail{
+  position:absolute;top:20px;left:50%;
+  display:flex;gap:var(--gap);
+  transform:translateX(calc(-1 * (var(--i,0) * var(--step) + var(--cardw)/2)));
+  transition:transform var(--dur) var(--ease);
+  will-change:transform;
+}
+
+.card{
+  position:relative;
+  flex:0 0 var(--cardw);
+  width:var(--cardw);
+  aspect-ratio:2/3;
+  border:1px solid var(--edge);
+  border-radius:3px;
+  overflow:hidden;
+  background:var(--hull);
+  opacity:.30;
+  transform:scale(.82);
+  filter:saturate(.35);
+  transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease),
+             filter var(--dur) var(--ease),border-color var(--dur) linear,
+             box-shadow var(--dur) linear;
+  cursor:pointer;
+}
+.card.is-active{
+  opacity:1;
+  transform:scale(1.06);
+  filter:none;
+  border-color:var(--card-hue);
+  box-shadow:0 0 0 1px var(--card-hue),0 24px 60px -20px var(--card-hue);
+}
+
+/* procedural placeholder art */
+.art{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:18px 16px;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.72) 100%),
+    linear-gradient(150deg,var(--card-hue) 0%,rgba(0,0,0,0) 62%),
+    repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 1px,transparent 1px 9px),
+    var(--hull-2);
+}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* real posters carry their own title — drop the placeholder overlay */
+.art.has-cover > :not(img){display:none}
+/* square or wide box art (handheld, CD, SNES): show it whole over a blurred copy */
+.art img.cover-bg{display:none}
+.art.fit img.cover-bg{display:block;filter:blur(16px) brightness(.5) saturate(1.2);transform:scale(1.25)}
+.art.fit img.cover{object-fit:contain}
+.art .glyph{
+  position:absolute;top:14px;right:14px;
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;
+  color:rgba(233,229,218,.72);
+}
+.art .years{
+  position:absolute;top:14px;left:14px;
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;
+  color:rgba(233,229,218,.72);
+}
+.art .name{
+  position:relative;
+  font-family:var(--f-display);font-weight:800;font-size:30px;line-height:.92;
+  letter-spacing:.01em;text-transform:uppercase;
+  text-wrap:balance;
+}
+.art .rule{position:relative;height:2px;background:var(--card-hue);width:38px;margin-bottom:10px}
+
+.card.drop-target{border-color:var(--bone);box-shadow:0 0 0 2px var(--bone)}
+
+[hidden]{display:none!important}
+
+/* ============================================================
+   GAMES — sub-tabs, reference panels, readout extras
+   ============================================================ */
+.subnav{
+  position:relative;z-index:3;
+  display:flex;flex-wrap:wrap;gap:4px;
+  padding:0 28px;border-bottom:1px solid var(--edge);
+}
+.subnav button{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  color:var(--dim);
+  font-family:var(--f-mono);font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:11px 12px 9px;cursor:pointer;
+  transition:color 180ms,border-color 400ms linear;
+}
+.subnav button:hover{color:var(--bone)}
+.subnav button[aria-selected="true"]{color:var(--bone);border-bottom-color:var(--accent)}
+.subnav button b{color:var(--dim);font-weight:500;margin-left:6px}
+.subnav button:focus-visible{outline:2px solid var(--bone);outline-offset:-2px}
+
+.panel{flex:1;min-height:0;width:100%;overflow-y:auto;padding:28px 28px 48px}
+.panel-inner{max-width:1100px;margin:0 auto;display:grid;gap:16px}
+.panel h2{
+  font-family:var(--f-display);font-weight:800;font-size:clamp(30px,4.2vw,46px);
+  line-height:.95;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance;
+}
+.panel h3{
+  margin-top:14px;font-family:var(--f-mono);font-size:11px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+}
+.panel .lede{color:var(--dim);font-size:14px;line-height:1.55;max-width:66ch}
+.ref-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));column-gap:32px}
+.ref-list li{border-top:1px solid var(--edge);padding:11px 0;display:grid;gap:4px}
+.ref-list strong{font-weight:500;font-size:14px}
+.ref-list span{font-family:var(--f-mono);font-size:11.5px;color:var(--dim);letter-spacing:.02em}
+.chips{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{font-family:var(--f-mono);font-size:12px;border:1px dashed var(--edge);border-radius:2px;padding:7px 10px}
+.chips li span{color:var(--dim);margin-left:6px}
+.notes-list{list-style:none;display:grid;gap:12px;max-width:72ch;font-size:14px;line-height:1.55;color:#C4C8CC}
+.notes-list b{color:var(--bone);font-weight:600}
+.sources{display:grid;gap:6px;padding-left:1.2em;font-size:13px;color:var(--dim)}
+.sources a{color:var(--accent);text-underline-offset:3px}
+
+body:not(.games-panel) .panel{display:none}
+body.games-panel .rail-window,
+body.games-panel .readout,
+body.games-panel .transport,
+body.games-panel .hint,
+body.games-panel #modeSeg{display:none}
+body.games-panel .stage{justify-content:flex-start;padding:0}
+
+.cast{font-size:13px;line-height:1.45;color:var(--bone);opacity:.88;max-width:70ch}
+.cast span{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);margin-right:8px;
+}
+.cast:empty,.systems:empty{display:none}
+.systems{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:720px}
+.systems li{
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim);
+  border:1px solid var(--edge);border-radius:2px;padding:3px 6px;
+}
+.flag.quiet{border-color:var(--edge);color:var(--bone)}
+.flag.off{border-color:#C4453C;color:#E07A6E}
+
+/* ============================================================
+   READOUT
+   ============================================================ */
+.readout{
+  width:min(760px,90vw);
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.readout.swap{animation:swap 420ms var(--ease)}
+@keyframes swap{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:none}
+}
+.era-tag{
+  font-family:var(--f-mono);font-size:11px;font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;
+  color:var(--accent);
+  transition:color 400ms linear;
+}
+.title{
+  font-family:var(--f-display);font-weight:800;
+  font-size:clamp(34px,6vw,66px);line-height:.9;
+  letter-spacing:.005em;text-transform:uppercase;
+  text-wrap:balance;
+}
+.meta{
+  display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;
+  color:var(--dim);text-transform:uppercase;
+}
+.meta b{color:var(--bone);font-weight:500}
+.meta .sep{width:4px;height:4px;background:var(--edge);border-radius:50%}
+.flag{
+  border:1px solid var(--accent);color:var(--accent);
+  padding:2px 7px;border-radius:2px;font-size:10px;letter-spacing:.16em;
+}
+.note{
+  font-size:13px;line-height:1.5;color:var(--dim);
+  max-width:60ch;
+}
+
+/* ============================================================
+   SCRUBBER
+   ============================================================ */
+.transport{
+  position:relative;z-index:3;
+  border-top:1px solid var(--edge);
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.45));
+  padding:14px 28px 18px;
+  display:flex;align-items:center;gap:20px;
+}
+
+.step-btn{
+  appearance:none;flex:0 0 auto;
+  width:44px;height:44px;
+  background:var(--hull);border:1px solid var(--edge);border-radius:2px;
+  color:var(--bone);font-size:15px;cursor:pointer;
+  display:grid;place-items:center;
+  transition:background 180ms,border-color 180ms,transform 180ms var(--ease);
+}
+.step-btn:hover{background:var(--hull-2);border-color:var(--accent)}
+.step-btn:active{transform:scale(.94)}
+.step-btn:disabled{opacity:.28;cursor:default;transform:none}
+.step-btn:focus-visible{outline:2px solid var(--bone);outline-offset:2px}
+
+.strip{
+  position:relative;flex:1;height:52px;
+  cursor:ew-resize;touch-action:none;
+}
+.strip::after{
+  content:"";position:absolute;left:0;right:0;top:26px;height:1px;
+  background:var(--edge);
+}
+.strip:focus-visible{outline:1px solid var(--bone);outline-offset:6px}
+
+.tick{
+  position:absolute;top:18px;
+  width:2px;height:16px;margin-left:-1px;
+  background:var(--dim);opacity:.42;
+  transition:left 760ms var(--ease),height 300ms var(--ease),
+             opacity 300ms linear,background 300ms linear,top 300ms var(--ease);
+  pointer-events:none;
+}
+.tick.is-active{
+  top:10px;height:32px;width:3px;
+  background:var(--accent);opacity:1;
+}
+.tick.is-major{opacity:.7}
+
+.strip-label{
+  position:absolute;top:44px;
+  transform:translateX(-50%);
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;
+  color:var(--dim);white-space:nowrap;pointer-events:none;
+  transition:left 760ms var(--ease);
+}
+
+.counter{
+  flex:0 0 auto;
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.12em;
+  color:var(--dim);
+}
+.counter b{color:var(--bone);font-weight:600}
+
+.hint{
+  position:relative;z-index:3;
+  padding:0 28px 12px;
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;
+  color:#4E5A6B;text-transform:uppercase;text-align:center;
+}
+
+/* ============================================================
+   CLEAN VIEW — for recording
+   ============================================================ */
+body.clean .deck-head,
+body.clean .hint,
+body.clean .note,
+body.clean .subnav{display:none}
+body.clean .transport{border-top-color:transparent;background:none}
+body.clean .rail-window{height:calc(var(--cardw) * 1.5 + 60px)}
+
+/* the only control left in clean view: faint enough to stay out of a recording */
+.exit-clean{
+  display:none;position:fixed;top:12px;right:12px;z-index:10;
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--edge);background:rgba(10,14,21,.6);
+  color:var(--dim);font-size:13px;line-height:1;cursor:pointer;
+  opacity:.3;transition:opacity 200ms,color 200ms,border-color 200ms;
+}
+body.clean .exit-clean{display:grid;place-items:center}
+.exit-clean:hover,.exit-clean:focus-visible{opacity:1;color:var(--bone);border-color:var(--bone);outline:none}
+@media (hover:none){.exit-clean{opacity:.5}}
+
+/* ============================================================
+   RESPONSIVE / MOTION
+   ============================================================ */
+.hint .touch{display:none}
+@media (hover:none) and (pointer:coarse){
+  .hint .desk{display:none}
+  .hint .touch{display:inline}
+}
+
+@media (max-width:820px){
+  :root{--cardw:170px;--gap:18px;--step:188px}
+  /* phones scroll instead of squeezing everything into one screen */
+  html,body{height:auto}
+  body{overflow-x:hidden;overflow-y:auto;min-height:100%}
+  .stage{flex:none;justify-content:flex-start;gap:18px;padding:16px 0 20px}
+  .rail-window{flex-shrink:0;touch-action:pan-y}
+  .readout{width:100%;padding-inline:16px}
+
+  .deck-head{padding:12px 16px;gap:10px}
+  .wordmark{font-size:20px}
+  .switches{width:100%;gap:8px}
+  .seg button,.ghost-btn{padding:10px 10px;letter-spacing:.08em}
+  #trackSeg{flex-basis:100%;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--edge)}
+  #trackSeg button{border-left:0;background:var(--void)}
+  #trackSeg button[aria-pressed="true"]{background:var(--accent)}
+  #modeSeg{flex:1}
+  #modeSeg button{flex:1}
+  .long{display:none}
+
+  .subnav{padding:0 16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .subnav::-webkit-scrollbar{display:none}
+  .subnav button{flex:none;white-space:nowrap}
+
+  /* scrubber stays under the thumb while the readout scrolls */
+  .transport{position:sticky;bottom:0;background:var(--void);padding:10px 16px 12px;gap:10px}
+  .step-btn{width:40px;height:40px}
+  .counter{font-size:12px}
+  .strip-label{font-size:9px;letter-spacing:.02em;max-width:48%;overflow:hidden;text-overflow:ellipsis}
+
+  .art .name{font-size:19px}
+  .panel{flex:none;overflow:visible;padding:22px 16px 40px}
+}
+/* short desktop windows: shrink the rail so the readout (games add cast + systems) clears the scrubber */
+@media (min-width:821px) and (max-height:920px){
+  :root{--cardw:220px;--step:248px}
+  .stage{gap:16px}
+  .art .name{font-size:26px}
+}
+@media (min-width:821px) and (max-height:800px){
+  :root{--cardw:180px;--step:208px}
+  .art .name{font-size:22px}
+}
+@media (min-width:821px) and (max-height:680px){
+  :root{--cardw:150px;--step:178px}
+  .art .name{font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:1ms!important;animation-duration:1ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="deck-head">
+  <div class="wordmark">Timeline <span>Deck</span></div>
+  <div class="switches">
+    <div class="seg" id="trackSeg" role="group" aria-label="Collection">
+      <button data-track="screen"  aria-pressed="true">On screen</button>
+      <button data-track="books"   aria-pressed="false">Canon books</button>
+      <button data-track="legends" aria-pressed="false">Legends &amp; Visions</button>
+      <button data-track="games"   aria-pressed="false">Games</button>
+    </div>
+    <div class="seg" id="modeSeg" role="group" aria-label="Order">
+      <button data-mode="timeline" aria-pressed="true">BBY / ABY<span class="long"> order</span></button>
+      <button data-mode="release"  aria-pressed="false">Release<span class="long"> order</span></button>
+    </div>
+    <button class="ghost-btn" id="cleanBtn" aria-pressed="false">Clean view</button>
+  </div>
+</header>
+
+<button class="exit-clean" id="exitClean" aria-label="Exit clean view" title="Exit clean view (Esc)">&#10005;</button>
+
+<nav class="subnav" id="gameNav" role="tablist" aria-label="Games" hidden>
+  <button role="tab" data-view="timeline"  aria-selected="true">Timeline <b id="gnTimeline"></b></button>
+  <button role="tab" data-view="other"     aria-selected="false">Not on the timeline <b id="gnOther"></b></button>
+  <button role="tab" data-view="cancelled" aria-selected="false">Cancelled <b id="gnCancelled"></b></button>
+  <button role="tab" data-view="notes"     aria-selected="false">Notes &amp; sources</button>
+</nav>
+
+<main class="stage">
+  <div class="rail-window">
+    <div class="rail" id="rail"></div>
+  </div>
+
+  <div class="readout" id="readout" aria-live="polite">
+    <div class="era-tag" id="era"></div>
+    <h1 class="title" id="title"></h1>
+    <div class="meta" id="meta"></div>
+    <p class="note" id="note"></p>
+    <p class="cast" id="cast"></p>
+    <ul class="systems" id="systems"></ul>
+  </div>
+
+  <section class="panel" id="gamePanel"></section>
+</main>
+
+<div class="transport">
+  <button class="step-btn" id="prevBtn" aria-label="Previous title">&#9664;</button>
+  <div class="strip" id="strip" role="slider" tabindex="0"
+       aria-label="Timeline position" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1"></div>
+  <button class="step-btn" id="nextBtn" aria-label="Next title">&#9654;</button>
+  <div class="counter" id="counter"></div>
+</div>
+
+<p class="hint"><span class="desk">Drag the strip or use &larr; &rarr; &middot; Drop an image on the centre card to set its cover &middot; C for clean view</span><span class="touch">Swipe the cards or drag the strip</span></p>
+
+<script>
+/* ============================================================
+   COVER ART
+   Drop an image file onto the centre card to load it for this
+   session, or fill in permanent paths here — key = id below.
+   e.g. "a-new-hope": "art/anh.jpg"
+   ============================================================ */
+const COVERS = {
+  "dawn-of-the-jedi": "covers/dawn-of-the-jedi.webp",
+  "young-jedi-adventures": "covers/young-jedi-adventures.webp",
+  "the-acolyte": "covers/the-acolyte.webp",
+  "tales-of-the-jedi": "covers/tales-of-the-jedi.webp",
+  "the-phantom-menace": "covers/the-phantom-menace.webp",
+  "attack-of-the-clones": "covers/attack-of-the-clones.webp",
+  "the-clone-wars": "covers/the-clone-wars.webp",
+  "revenge-of-the-sith": "covers/revenge-of-the-sith.webp",
+  "the-bad-batch": "covers/the-bad-batch.webp",
+  "tales-of-the-empire": "covers/tales-of-the-empire.webp",
+  "tales-of-the-underworld": "covers/tales-of-the-underworld.webp",
+  "solo": "covers/solo.webp",
+  "maul-shadow-lord": "covers/maul-shadow-lord.webp",
+  "obi-wan-kenobi": "covers/obi-wan-kenobi.webp",
+  "rebels": "covers/rebels.webp",
+  "andor": "covers/andor.webp",
+  "rogue-one": "covers/rogue-one.webp",
+  "a-new-hope": "covers/a-new-hope.webp",
+  "empire-strikes-back": "covers/empire-strikes-back.webp",
+  "return-of-the-jedi": "covers/return-of-the-jedi.webp",
+  "the-mandalorian": "covers/the-mandalorian.webp",
+  "book-of-boba-fett": "covers/book-of-boba-fett.webp",
+  "skeleton-crew": "covers/skeleton-crew.webp",
+  "ahsoka": "covers/ahsoka.webp",
+  "mandalorian-and-grogu": "covers/mandalorian-and-grogu.webp",
+  "ahsoka-s2": "covers/ahsoka-s2.webp",
+  "mandoverse-film": "covers/mandoverse-film.webp",
+  "resistance": "covers/resistance.webp",
+  "the-force-awakens": "covers/the-force-awakens.webp",
+  "the-last-jedi": "covers/the-last-jedi.webp",
+  "rise-of-skywalker": "covers/rise-of-skywalker.webp",
+  "starfighter": "covers/starfighter.webp",
+  "new-jedi-order": "covers/new-jedi-order.webp",
+  "dark-disciple": "covers/dark-disciple.webp",
+  "ta-chaos-rising": "covers/ta-chaos-rising.webp",
+  "ta-greater-good": "covers/ta-greater-good.webp",
+  "ta-lesser-evil": "covers/ta-lesser-evil.webp",
+  "tarkin": "covers/tarkin.webp",
+  "thrawn": "covers/thrawn.webp",
+  "thrawn-alliances": "covers/thrawn-alliances.webp",
+  "thrawn-treason": "covers/thrawn-treason.webp",
+  "revan": "covers/revan.webp",
+  "bane-path": "covers/bane-path.webp",
+  "bane-rule": "covers/bane-rule.webp",
+  "bane-dynasty": "covers/bane-dynasty.webp",
+  "plagueis": "covers/plagueis.webp",
+  "outbound-flight": "covers/outbound-flight.webp",
+  "heir-to-the-empire": "covers/heir-to-the-empire.webp",
+  "dark-force-rising": "covers/dark-force-rising.webp",
+  "the-last-command": "covers/the-last-command.webp",
+  "specter-of-the-past": "covers/specter-of-the-past.webp",
+  "vision-of-the-future": "covers/vision-of-the-future.webp",
+  "survivors-quest": "covers/survivors-quest.webp",
+  "visions-1": "covers/visions-1.webp",
+  "visions-2": "covers/visions-2.webp",
+  "visions-3": "covers/visions-3.webp",
+  "ninth-jedi": "covers/ninth-jedi.webp",
+  "game-kotor": "covers/game-kotor.webp",
+  "game-kotor-2": "covers/game-kotor-2.webp",
+  "game-the-old-republic": "covers/game-the-old-republic.webp",
+  "game-tpm-1999": "covers/game-tpm-1999.webp",
+  "game-racer": "covers/game-racer.webp",
+  "game-bounty-hunter": "covers/game-bounty-hunter.webp",
+  "game-obi-wan-2001": "covers/game-obi-wan-2001.webp",
+  "game-obi-wans-adventures": "covers/game-obi-wans-adventures.webp",
+  "game-jedi-power-battles": "covers/game-jedi-power-battles.webp",
+  "game-battle-for-naboo": "covers/game-battle-for-naboo.webp",
+  "game-racer-arcade": "covers/game-racer-arcade.webp",
+  "game-kinect-star-wars": "covers/game-kinect-star-wars.webp",
+  "game-racer-revenge": "covers/game-racer-revenge.webp",
+  "game-jedi-starfighter": "covers/game-jedi-starfighter.webp",
+  "game-aotc-gba": "covers/game-aotc-gba.webp",
+  "game-clone-wars-2002": "covers/game-clone-wars-2002.webp",
+  "game-new-droid-army": "covers/game-new-droid-army.webp",
+  "game-republic-commando": "covers/game-republic-commando.webp",
+  "game-galactic-battlegrounds": "covers/game-galactic-battlegrounds.webp",
+  "game-lightsaber-duels": "covers/game-lightsaber-duels.webp",
+  "game-jedi-alliance": "covers/game-jedi-alliance.webp",
+  "game-republic-heroes": "covers/game-republic-heroes.webp",
+  "game-zero-company": "covers/game-zero-company.webp",
+  "game-rots-2005": "covers/game-rots-2005.webp",
+  "game-battlefront-2-2005": "covers/game-battlefront-2-2005.webp",
+  "game-battlefront-2004": "covers/game-battlefront-2004.webp",
+  "game-elite-squadron": "covers/game-elite-squadron.webp",
+  "game-droids-1988": "covers/game-droids-1988.webp",
+  "game-jedi-fallen-order": "covers/game-jedi-fallen-order.webp",
+  "game-jedi-survivor": "covers/game-jedi-survivor.webp",
+  "game-force-unleashed": "covers/game-force-unleashed.webp",
+  "game-empire-at-war": "covers/game-empire-at-war.webp",
+  "game-vader-immortal": "covers/game-vader-immortal.webp",
+  "game-force-unleashed-2": "covers/game-force-unleashed-2.webp",
+  "game-lethal-alliance": "covers/game-lethal-alliance.webp",
+  "game-sw-arcade-1983": "covers/game-sw-arcade-1983.webp",
+  "game-famicom-1987": "covers/game-famicom-1987.webp",
+  "game-sw-nes-1991": "covers/game-sw-nes-1991.webp",
+  "game-super-star-wars": "covers/game-super-star-wars.webp",
+  "game-x-wing": "covers/game-x-wing.webp",
+  "game-rebel-assault": "covers/game-rebel-assault.webp",
+  "game-sw-arcade-1993": "covers/game-sw-arcade-1993.webp",
+  "game-dark-forces": "covers/game-dark-forces.webp",
+  "game-flight-of-the-falcon": "covers/game-flight-of-the-falcon.webp",
+  "game-apprentice-of-the-force": "covers/game-apprentice-of-the-force.webp",
+  "game-trilogy-arcade": "covers/game-trilogy-arcade.webp",
+  "game-force-commander": "covers/game-force-commander.webp",
+  "game-rebellion": "covers/game-rebellion.webp",
+  "game-renegade-squadron": "covers/game-renegade-squadron.webp",
+  "game-rogue-leader": "covers/game-rogue-leader.webp",
+  "game-rebel-strike": "covers/game-rebel-strike.webp",
+  "game-battlefront-2015": "covers/game-battlefront-2015.webp",
+  "game-galaxies": "covers/game-galaxies.webp",
+  "game-tie-fighter": "covers/game-tie-fighter.webp",
+  "game-masters-of-teras-kasi": "covers/game-masters-of-teras-kasi.webp",
+  "game-rebel-assault-2": "covers/game-rebel-assault-2.webp",
+  "game-rogue-squadron": "covers/game-rogue-squadron.webp",
+  "game-x-wing-vs-tie": "covers/game-x-wing-vs-tie.webp",
+  "game-demolition": "covers/game-demolition.webp",
+  "game-yoda-stories": "covers/game-yoda-stories.webp",
+  "game-outlaws": "covers/game-outlaws.webp",
+  "game-shadows-of-the-empire": "covers/game-shadows-of-the-empire.webp",
+  "game-x-wing-alliance": "covers/game-x-wing-alliance.webp",
+  "game-esb-1982": "covers/game-esb-1982.webp",
+  "game-esb-nes": "covers/game-esb-nes.webp",
+  "game-super-esb": "covers/game-super-esb.webp",
+  "game-rotj-arcade": "covers/game-rotj-arcade.webp",
+  "game-super-rotj": "covers/game-super-rotj.webp",
+  "game-forces-of-corruption": "covers/game-forces-of-corruption.webp",
+  "game-battlefront-2-2017": "covers/game-battlefront-2-2017.webp",
+  "game-uprising": "covers/game-uprising.webp",
+  "game-squadrons": "covers/game-squadrons.webp",
+  "game-galactic-racer": "covers/game-galactic-racer.webp",
+  "game-jedi-knight": "covers/game-jedi-knight.webp",
+  "game-mysteries-of-the-sith": "covers/game-mysteries-of-the-sith.webp",
+  "game-jedi-outcast": "covers/game-jedi-outcast.webp",
+  "game-jedi-academy": "covers/game-jedi-academy.webp",
+  "game-tales-galaxys-edge": "covers/game-tales-galaxys-edge.webp",
+  "game-lego-2005": "covers/game-lego-2005.webp",
+  "game-lego-2006": "covers/game-lego-2006.webp",
+  "game-lego-complete-saga": "covers/game-lego-complete-saga.webp",
+  "game-lego-clone-wars": "covers/game-lego-clone-wars.webp",
+  "game-lego-tfa": "covers/game-lego-tfa.webp",
+  "game-lego-skywalker-saga": "covers/game-lego-skywalker-saga.webp"
+};
+
+/* ============================================================
+   DATA
+   t  = position on the timeline in ABY (BBY is negative).
+        Decimals only break ties inside the same year.
+   ry = release year used for sorting (9999 = unannounced).
+   ============================================================ */
+const DATA = [
+  /* ---- CANON, ON SCREEN ---- */
+  {id:"dawn-of-the-jedi", track:"screen", medium:"Film",   title:"Dawn of the Jedi", t:-25000, when:"~25,000 BBY", ry:9999, rel:"TBA", soon:true, note:"James Mangold's film, set at the founding of the Jedi. No date announced."},
+  {id:"young-jedi-adventures", track:"screen", medium:"Series", title:"Young Jedi Adventures", t:-232, when:"232 BBY", ry:2023, rel:"2023"},
+  {id:"the-acolyte", track:"screen", medium:"Series", title:"The Acolyte", t:-132, when:"132 BBY", ry:2024, rel:"2024", note:"High Republic era. One season only."},
+  {id:"tales-of-the-jedi", track:"screen", medium:"Series", title:"Tales of the Jedi", t:-68, when:"68 BBY – 19 BBY", ry:2022, rel:"2022", note:"Anthology. Sorted by its earliest short — worth splitting the episodes across your video."},
+  {id:"the-phantom-menace", track:"screen", medium:"Film", title:"The Phantom Menace", t:-32, when:"32 BBY", ry:1999, rel:"1999"},
+  {id:"attack-of-the-clones", track:"screen", medium:"Film", title:"Attack of the Clones", t:-22, when:"22 BBY", ry:2002, rel:"2002"},
+  {id:"the-clone-wars", track:"screen", medium:"Series", title:"The Clone Wars", t:-21.9, when:"22 BBY – 19 BBY", ry:2008, rel:"2008–2020", note:"The 2008 film opens the series. Broadcast order and chronological order differ heavily inside the show itself."},
+  {id:"revenge-of-the-sith", track:"screen", medium:"Film", title:"Revenge of the Sith", t:-19, when:"19 BBY", ry:2005, rel:"2005"},
+  {id:"the-bad-batch", track:"screen", medium:"Series", title:"The Bad Batch", t:-18.99, when:"19 BBY – 18 BBY", ry:2021, rel:"2021–2024"},
+  {id:"tales-of-the-empire", track:"screen", medium:"Series", title:"Tales of the Empire", t:-18.98, when:"19 BBY – 9 ABY", ry:2024, rel:"2024", note:"Anthology spanning three decades — Morgan Elsbeth and Barriss Offee."},
+  {id:"tales-of-the-underworld", track:"screen", medium:"Series", title:"Tales of the Underworld", t:-52, when:"~52 BBY – 17 BBY", ry:2025, rel:"2025", note:"Anthology. Cad Bane's episodes run from his childhood (~52 BBY) to just before the prequels; Ventress's are 17 BBY. Sorted by its earliest short, like Tales of the Jedi."},
+  {id:"solo", track:"screen", medium:"Film", title:"Solo", t:-13, when:"13 BBY – 10 BBY", ry:2018, rel:"2018"},
+  {id:"maul-shadow-lord", track:"screen", medium:"Series", title:"Maul: Shadow Lord", t:-17, when:"17 BBY – ~13 BBY", ry:2026, rel:"2026", note:"Set a few years after Order 66. Ten episodes, April 6 – May 4, 2026."},
+  {id:"obi-wan-kenobi", track:"screen", medium:"Series", title:"Obi-Wan Kenobi", t:-9, when:"9 BBY", ry:2022, rel:"2022"},
+  {id:"rebels", track:"screen", medium:"Series", title:"Star Wars Rebels", t:-5, when:"5 BBY – 0 BBY", ry:2014, rel:"2014–2018"},
+  {id:"andor", track:"screen", medium:"Series", title:"Andor", t:-4.99, when:"5 BBY – 0 BBY", ry:2022, rel:"2022–2025", note:"Two seasons. The finale runs straight into the opening of Rogue One."},
+  {id:"rogue-one", track:"screen", medium:"Film", title:"Rogue One", t:-0.01, when:"0 BBY", ry:2016, rel:"2016"},
+  {id:"a-new-hope", track:"screen", medium:"Film", title:"A New Hope", t:0, when:"0 BBY / 0 ABY", ry:1977, rel:"1977", note:"Year zero. Everything else is measured from the Battle of Yavin."},
+  {id:"empire-strikes-back", track:"screen", medium:"Film", title:"The Empire Strikes Back", t:3, when:"3 ABY", ry:1980, rel:"1980"},
+  {id:"return-of-the-jedi", track:"screen", medium:"Film", title:"Return of the Jedi", t:4, when:"4 ABY", ry:1983, rel:"1983"},
+  {id:"the-mandalorian", track:"screen", medium:"Series", title:"The Mandalorian", t:9, when:"9 ABY+", ry:2019, rel:"2019–"},
+  {id:"book-of-boba-fett", track:"screen", medium:"Series", title:"The Book of Boba Fett", t:9.01, when:"9 ABY", ry:2021, rel:"2021", note:"Chapters 5 and 6 are effectively Mandalorian season 2.5."},
+  {id:"skeleton-crew", track:"screen", medium:"Series", title:"Skeleton Crew", t:9.02, when:"9 ABY", ry:2024, rel:"2024–2025", note:"Runs alongside The Mandalorian."},
+  {id:"ahsoka", track:"screen", medium:"Series", title:"Ahsoka", t:9.5, when:"~9 ABY – 11 ABY", ry:2023, rel:"2023"},
+  {id:"mandalorian-and-grogu", track:"screen", medium:"Film", title:"The Mandalorian & Grogu", t:9.6, when:"~9 ABY+", ry:2026, rel:"May 22, 2026"},
+  {id:"ahsoka-s2", track:"screen", medium:"Series", title:"Ahsoka — Season 2", t:11, when:"~11 ABY", ry:2027, rel:"Jan 20, 2027", soon:true},
+  {id:"mandoverse-film", track:"screen", medium:"Film", title:"Filoni's Mandoverse Film", t:11.4, when:"~9 ABY – 11 ABY", ry:9999, rel:"TBA", soon:true, note:"The convergence film for the Mandalorian, Ahsoka and Boba Fett threads."},
+  {id:"resistance", track:"screen", medium:"Series", title:"Star Wars Resistance", t:33.9, when:"34 ABY – 35 ABY", ry:2018, rel:"2018–2020", note:"Opens roughly six months before The Force Awakens."},
+  {id:"the-force-awakens", track:"screen", medium:"Film", title:"The Force Awakens", t:34, when:"34 ABY", ry:2015, rel:"2015"},
+  {id:"the-last-jedi", track:"screen", medium:"Film", title:"The Last Jedi", t:34.01, when:"34 ABY", ry:2017, rel:"2017", note:"Picks up minutes after The Force Awakens."},
+  {id:"rise-of-skywalker", track:"screen", medium:"Film", title:"The Rise of Skywalker", t:35, when:"35 ABY", ry:2019, rel:"2019"},
+  {id:"starfighter", track:"screen", medium:"Film", title:"Starfighter", t:40, when:"40 ABY", ry:2027, rel:"May 28, 2027", soon:true, note:"Shawn Levy directing, Ryan Gosling starring. Roughly five years after The Rise of Skywalker."},
+  {id:"new-jedi-order", track:"screen", medium:"Film", title:"New Jedi Order", t:50, when:"~50 ABY", ry:9999, rel:"TBA", soon:true, note:"The Rey film. No date announced."},
+  {id:"kinberg-trilogy", track:"screen", medium:"Films", title:"Kinberg Trilogy — Ep. X–XII", t:51, when:"50 ABY+", ry:9999, rel:"TBA", soon:true},
+
+  /* ---- CANON, NOVELS ---- */
+  {id:"dark-disciple", track:"books", medium:"Novel", title:"Dark Disciple", t:-19, when:"19 BBY", ry:2015, rel:"2015", note:"Built from unproduced Clone Wars scripts — Quinlan Vos and Ventress."},
+  {id:"ta-chaos-rising", track:"books", medium:"Novel", title:"Thrawn Ascendancy: Chaos Rising", t:-19.01, when:"19 BBY", ry:2020, rel:"2020", note:"Framing story sits at 19 BBY; the bulk is Thrawn's early Chiss career, decades earlier."},
+  {id:"ta-greater-good", track:"books", medium:"Novel", title:"Thrawn Ascendancy: Greater Good", t:-18, when:"18 BBY", ry:2021, rel:"2021"},
+  {id:"ta-lesser-evil", track:"books", medium:"Novel", title:"Thrawn Ascendancy: Lesser Evil", t:-17.99, when:"18 BBY", ry:2021, rel:"2021"},
+  {id:"tarkin", track:"books", medium:"Novel", title:"Tarkin", t:-14, when:"14 BBY", ry:2014, rel:"2014"},
+  {id:"thrawn", track:"books", medium:"Novel", title:"Thrawn", t:-11, when:"11 BBY – 2 BBY", ry:2017, rel:"2017"},
+  {id:"thrawn-alliances", track:"books", medium:"Novel", title:"Thrawn: Alliances", t:-2, when:"2 BBY", ry:2018, rel:"2018", note:"Split narrative: the present-day thread is 2 BBY with Vader, cut with heavy 19 BBY flashbacks alongside Anakin. Filed at 2 BBY to keep the present-day flow."},
+  {id:"thrawn-treason", track:"books", medium:"Novel", title:"Thrawn: Treason", t:-1, when:"1 BBY", ry:2019, rel:"2019"},
+
+  /* ---- LEGENDS + VISIONS (outside the canon timeline) ---- */
+  {id:"revan", track:"legends", medium:"Legends", title:"The Old Republic: Revan", t:-3954, when:"3954 BBY – 3638 BBY", ry:2011, rel:"2011"},
+  {id:"bane-path", track:"legends", medium:"Legends", title:"Darth Bane: Path of Destruction", t:-1003, when:"1003 BBY – 1000 BBY", ry:2006, rel:"2006"},
+  {id:"bane-rule", track:"legends", medium:"Legends", title:"Darth Bane: Rule of Two", t:-1000, when:"1000 BBY – 990 BBY", ry:2007, rel:"2007"},
+  {id:"bane-dynasty", track:"legends", medium:"Legends", title:"Darth Bane: Dynasty of Evil", t:-980, when:"980 BBY", ry:2009, rel:"2009"},
+  {id:"plagueis", track:"legends", medium:"Legends", title:"Darth Plagueis", t:-67, when:"67 BBY – 32 BBY", ry:2012, rel:"2012", note:"Ends on the night of The Phantom Menace."},
+  {id:"outbound-flight", track:"legends", medium:"Legends", title:"Outbound Flight", t:-27, when:"27 BBY", ry:2006, rel:"2006"},
+  {id:"heir-to-the-empire", track:"legends", medium:"Legends", title:"Heir to the Empire", t:9, when:"9 ABY", ry:1991, rel:"1991"},
+  {id:"dark-force-rising", track:"legends", medium:"Legends", title:"Dark Force Rising", t:9.01, when:"9 ABY", ry:1992, rel:"1992"},
+  {id:"the-last-command", track:"legends", medium:"Legends", title:"The Last Command", t:9.02, when:"9 ABY", ry:1993, rel:"1993"},
+  {id:"specter-of-the-past", track:"legends", medium:"Legends", title:"Specter of the Past", t:19, when:"19 ABY", ry:1997, rel:"1997"},
+  {id:"vision-of-the-future", track:"legends", medium:"Legends", title:"Vision of the Future", t:19.01, when:"19 ABY", ry:1998, rel:"1998"},
+  {id:"survivors-quest", track:"legends", medium:"Legends", title:"Survivor's Quest", t:22, when:"22 ABY", ry:2004, rel:"2004"},
+  {id:"visions-1", track:"legends", medium:"Anthology", title:"Visions — Volume 1", t:null, when:"Outside the timeline", ry:2021, rel:"2021"},
+  {id:"visions-2", track:"legends", medium:"Anthology", title:"Visions — Volume 2", t:null, when:"Outside the timeline", ry:2023, rel:"2023"},
+  {id:"visions-3", track:"legends", medium:"Anthology", title:"Visions — Volume 3", t:null, when:"Outside the timeline", ry:2025, rel:"October 2025"},
+  {id:"ninth-jedi", track:"legends", medium:"Series", title:"Visions Presents: The Ninth Jedi", t:null, when:"Outside the timeline", ry:2026, rel:"August 2026", note:"Eight-episode series from Production I.G, spun off from the Volume 1 short. Premiered August 5, 2026."}
+];
+
+/* ==== GAMES — generated from sw-games.json by wire_games.py. Edit the JSON, not this block. ==== */
+const GAME_DATA = [
+  {id:"game-kotor", track:"games", medium:"Game", title:"Knights of the Old Republic", t:-3956, when:"3,956 BBY", ry:2003, rel:"2003", cont:"Legends", kind:"story", chars:"Revan (player), Bastila Shan, Carth Onasi, HK-47, Darth Malak", note:"Follow ancient Star Maps to the Star Forge and stop Darth Malak's Sith armada.", sys:["Xbox", "PC", "Mac (2004)", "iOS (2013)", "Android (2014)", "Switch (2021)"], dev:"BioWare"},
+  {id:"game-kotor-remake", track:"games", medium:"Game", title:"Knights of the Old Republic — Remake", t:-3956, when:"3,956 BBY", ry:9999, rel:"TBA", soon:true, cont:"TBA", kind:"story", chars:"Revan (player), Bastila Shan, Darth Malak", note:"Ground-up remake of the 2003 RPG; rebuilt by Saber since 2023, no release date.", sys:["PC", "PS5"], dev:"Saber Interactive"},
+  {id:"game-kotor-2", track:"games", medium:"Game", title:"KOTOR II: The Sith Lords", t:-3951, when:"3,951 BBY", ry:2004, rel:"2004", cont:"Legends", kind:"story", chars:"The Jedi Exile (player), Kreia, Atton Rand, Darth Nihilus, Darth Sion", note:"Reconnect a Force-severed Jedi and hunt the Sith lords wiping out the last of the Jedi.", sys:["Xbox", "PC", "Mac/Linux (2015)", "iOS/Android (2020)", "Switch (2022)"], dev:"Obsidian Entertainment"},
+  {id:"game-the-old-republic", track:"games", medium:"Game", title:"The Old Republic", t:-3643, t2:-3624, when:"3,643 BBY onward", ry:2011, rel:"2011", cont:"Legends", kind:"story", chars:"Eight class stories (Jedi Knight, Sith Warrior, Smuggler, Bounty Hunter…), Darth Malgus, Satele Shan, Valkorion", note:"MMO: the Republic and the resurgent Sith Empire slide from cold war back into open war.", sys:["PC"], dev:"BioWare / Broadsword"},
+  {id:"game-fate-of-the-old-republic", track:"games", medium:"Game", title:"Fate of the Old Republic", t:-3900, when:"Old Republic era (year TBA)", ry:9999, rel:"TBA (before 2030)", soon:true, cont:"TBA", kind:"story", chars:"A Force user (player)", note:"Single-player action RPG and spiritual successor to KOTOR; light and dark side choices. Announced Dec 2025.", sys:["Not announced"], dev:"Arcanaut Studios"},
+  {id:"game-eclipse", track:"games", medium:"Game", title:"Star Wars Eclipse", t:-250, when:"High Republic era (year TBA)", ry:9999, rel:"TBA", soon:true, cont:"Canon", kind:"story", chars:"Multiple playable characters (unannounced)", note:"Branching-narrative adventure in the Outer Rim. Still in development; shown again at D23 2026.", sys:["Not announced"], dev:"Quantic Dream"},
+  {id:"game-tpm-1999", track:"games", medium:"Game", title:"Episode I: The Phantom Menace", t:-32, when:"32 BBY", ry:1999, rel:"1999", cont:"Legends", kind:"retelling", chars:"Obi-Wan, Qui-Gon Jinn, Queen Amidala, Captain Panaka", note:"Play through the film's events from Trade Federation ship to Theed.", sys:["PC", "PS1"], dev:"Big Ape Productions"},
+  {id:"game-racer", track:"games", medium:"Game", title:"Episode I: Racer", t:-32, when:"32 BBY", ry:1999, rel:"1999", cont:"Legends", kind:"story", chars:"Anakin Skywalker, Sebulba, 20+ podracers", note:"Win the Galactic Podracing circuit, building to the Boonta Eve Classic.", sys:["PC", "Mac", "N64", "Dreamcast", "GBC", "PS4 / Switch (2020)"], dev:"LucasArts"},
+  {id:"game-bounty-hunter", track:"games", medium:"Game", title:"Bounty Hunter", t:-32, when:"32 BBY", ry:2002, rel:"2002", cont:"Legends", kind:"story", chars:"Jango Fett, Zam Wesell, Montross, Komari Vosa", note:"Jango hunts the Dark Jedi cult leader Komari Vosa and wins the job of clone template.", sys:["PS2", "GameCube", "Switch / PS4 / PS5 / Xbox / PC (2024)"], dev:"LucasArts"},
+  {id:"game-obi-wan-2001", track:"games", medium:"Game", title:"Obi-Wan", t:-32, when:"c. 32 BBY", ry:2001, rel:"2001", cont:"Legends", kind:"story", chars:"Obi-Wan Kenobi, Qui-Gon Jinn, Darth Maul", note:"Obi-Wan's Padawan missions leading into and through The Phantom Menace.", sys:["Xbox"], dev:"LucasArts"},
+  {id:"game-obi-wans-adventures", track:"games", medium:"Game", title:"Episode I: Obi-Wan's Adventures", t:-32, when:"32 BBY", ry:2000, rel:"2000", cont:"Legends", kind:"retelling", chars:"Obi-Wan Kenobi", note:"Top-down retelling of the film on Game Boy Color.", sys:["GBC"], dev:"HotGen Studios"},
+  {id:"game-jedi-power-battles", track:"games", medium:"Game", title:"Episode I: Jedi Power Battles", t:-32, when:"32 BBY", ry:2000, rel:"2000", cont:"Legends", kind:"retelling", chars:"Qui-Gon, Obi-Wan, Mace Windu, Plo Koon, Ki-Adi-Mundi", note:"Co-op brawler through the battles of The Phantom Menace.", sys:["PS1", "Dreamcast", "GBA", "PC / Switch / PS4 / PS5 / Xbox (2025)"], dev:"LucasArts"},
+  {id:"game-battle-for-naboo", track:"games", medium:"Game", title:"Episode I: Battle for Naboo", t:-32, when:"32 BBY", ry:2000, rel:"2000", cont:"Legends", kind:"story", chars:"Lt. Gavyn Sykes, Captain Kael", note:"Naboo security forces fight the Trade Federation occupation from the ground and the air.", sys:["N64", "PC"], dev:"Factor 5"},
+  {id:"game-starfighter", track:"games", medium:"Game", title:"Starfighter", t:-32, when:"32 BBY", ry:2001, rel:"2001", cont:"Legends", kind:"story", chars:"Rhys Dallows, Vana Sage, Nym", note:"Three pilots — a rookie, a mercenary and a pirate — fight the Trade Federation around the invasion of Naboo.", sys:["PS2", "PC", "Xbox (Special Edition)", "Arcade", "PS4 (2019)"], dev:"LucasArts"},
+  {id:"game-racer-arcade", track:"games", medium:"Game", title:"Racer Arcade", t:-32, when:"32 BBY", ry:2000, rel:"2000", cont:"Legends", kind:"retelling", chars:"Anakin Skywalker, Sebulba", note:"Sit-down cabinet podracing across Tatooine and beyond.", sys:["Arcade"], dev:"Sega AM5"},
+  {id:"game-kinect-star-wars", track:"games", medium:"Game", title:"Kinect Star Wars", t:-32, t2:-22, when:"c. 32–22 BBY", ry:2012, rel:"2012", cont:"Legends", kind:"story", chars:"A Padawan (player), Mace Windu's Jedi; mini-modes with Han, Vader, Rancor", note:"Motion-control Jedi Destiny campaign set between Episodes I and II, plus podracing and dance modes.", sys:["Xbox 360"], dev:"Terminal Reality"},
+  {id:"game-racer-revenge", track:"games", medium:"Game", title:"Racer Revenge", t:-24, when:"24 BBY", ry:2002, rel:"2002", cont:"Legends", kind:"story", chars:"Anakin Skywalker, Sebulba", note:"A grudge rematch on the podracing circuit eight years after the Boonta Eve.", sys:["PS2", "PS4 (PS2 Classic)"], dev:"Rainbow Studios"},
+  {id:"game-jedi-starfighter", track:"games", medium:"Game", title:"Jedi Starfighter", t:-22, when:"22 BBY", ry:2002, rel:"2002", cont:"Legends", kind:"story", chars:"Adi Gallia, Nym", note:"Jedi Master Adi Gallia teams with the pirate Nym against a Trade Federation superweapon, ending at Geonosis.", sys:["PS2", "Xbox", "PS4 (PS2 Classic)"], dev:"LucasArts"},
+  {id:"game-aotc-gba", track:"games", medium:"Game", title:"Episode II: Attack of the Clones", t:-22, when:"22 BBY", ry:2002, rel:"2002", cont:"Legends", kind:"retelling", chars:"Anakin, Obi-Wan, Mace Windu", note:"Side-scrolling retelling of the film's action scenes.", sys:["GBA"], dev:"David A. Palmer Productions"},
+  {id:"game-clone-wars-2002", track:"games", medium:"Game", title:"The Clone Wars", t:-22, when:"22 BBY", ry:2002, rel:"2002", cont:"Legends", kind:"story", chars:"Mace Windu, Anakin Skywalker, Obi-Wan Kenobi, Count Dooku", note:"Jedi race to stop Dooku from reviving the ancient Dark Reaper superweapon.", sys:["PS2", "GameCube", "Xbox"], dev:"Pandemic Studios"},
+  {id:"game-new-droid-army", track:"games", medium:"Game", title:"The New Droid Army", t:-22, when:"c. 22 BBY", ry:2002, rel:"2002", cont:"Legends", kind:"story", chars:"Anakin Skywalker, Count Dooku", note:"Anakin tracks down Dooku's scheme to build a new droid army.", sys:["GBA"], dev:"Helixe"},
+  {id:"game-republic-commando", track:"games", medium:"Game", title:"Republic Commando", t:-22, t2:-19, when:"22–19 BBY", ry:2005, rel:"2005", cont:"Legends", kind:"story", chars:"Delta Squad: Boss (player), Fixer, Scorch, Sev", note:"Elite clone commandos fight from Geonosis to a derelict Republic ship to the Battle of Kashyyyk.", sys:["Xbox", "PC", "PS4 / Switch (2021)"], dev:"LucasArts"},
+  {id:"game-galactic-battlegrounds", track:"games", medium:"Game", title:"Galactic Battlegrounds", t:-32, t2:4, when:"c. 32 BBY – 4 ABY", ry:2001, rel:"2001", cont:"Legends", kind:"story", chars:"Chewbacca, Gungan, Naboo, Imperial and Rebel commanders", note:"Age of Empires-style strategy with campaigns for six factions across both trilogies. Clone Campaigns (2002) adds 22–19 BBY.", sys:["PC", "Mac"], dev:"Ensemble / LucasArts"},
+  {id:"game-lightsaber-duels", track:"games", medium:"Game", title:"The Clone Wars: Lightsaber Duels", t:-22, t2:-21, when:"c. 22–21 BBY", ry:2008, rel:"2008", cont:"Legends", kind:"story", chars:"Anakin, Obi-Wan, Ahsoka, Dooku, Ventress, Grievous", note:"A campaign told entirely through lightsaber duels from the show's first season.", sys:["Wii"], dev:"Krome Studios"},
+  {id:"game-jedi-alliance", track:"games", medium:"Game", title:"The Clone Wars: Jedi Alliance", t:-22, t2:-21, when:"c. 22–21 BBY", ry:2008, rel:"2008", cont:"Legends", kind:"story", chars:"Anakin, Obi-Wan, Ahsoka, Mace Windu, Plo Koon, Luminara, Kit Fisto", note:"Jedi teams foil a Separatist plot led by Dooku and Ventress.", sys:["DS"], dev:"LucasArts"},
+  {id:"game-republic-heroes", track:"games", medium:"Game", title:"The Clone Wars: Republic Heroes", t:-21, when:"c. 21 BBY", ry:2009, rel:"2009", cont:"Legends", kind:"story", chars:"Anakin, Ahsoka, Obi-Wan, Captain Rex, Kul Teska", note:"Bridges the show's first two seasons: Jedi and clones counter the schemes of Kul Teska.", sys:["PC", "Xbox 360", "PS3", "PS2", "PSP", "Wii", "DS"], dev:"Krome Studios"},
+  {id:"game-clone-wars-adventures", track:"games", medium:"Game", title:"Clone Wars Adventures", t:-21, when:"c. 21 BBY", ry:2010, rel:"2010", offline:"Closed Mar 2014", cont:"Legends", kind:"story", chars:"Player-created Republic recruit; show characters", note:"Free-to-play kids' MMO of mini-games and missions inside The Clone Wars.", sys:["PC", "Mac"], dev:"Sony Online Entertainment"},
+  {id:"game-zero-company", track:"games", medium:"Game", title:"Zero Company", t:-19, when:"19 BBY", ry:2026, rel:"Aug 27, 2026", cont:"Canon", kind:"story", chars:"Hawks (player), clone Trick, a Mandalorian, a Jedi and hired specialists", note:"Turn-based tactics: an off-the-books squad hunts the Infinite Coil cult and its Shadow Plague in the war's final year.", sys:["PS5", "Xbox Series", "PC"], dev:"Respawn / Bit Reactor"},
+  {id:"game-rots-2005", track:"games", medium:"Game", title:"Episode III: Revenge of the Sith", t:-19, when:"19 BBY", ry:2005, rel:"2005", cont:"Legends", kind:"retelling", chars:"Anakin Skywalker, Obi-Wan Kenobi", note:"Play the film from both sides of the duel on Mustafar.", sys:["PS2", "Xbox", "DS", "GBA", "Mobile"], dev:"The Collective"},
+  {id:"game-battlefront-2-2005", track:"games", medium:"Game", title:"Battlefront II", t:-22, t2:3, when:"22 BBY – 3 ABY", ry:2005, rel:"2005", cont:"Legends", kind:"story", chars:"A 501st Legion veteran (narrator), Vader, clone and Imperial heroes", note:"Rise of the Empire campaign follows the 501st from Geonosis through Order 66 to Hoth.", sys:["PS2", "PC", "Xbox", "PSP", "Classic Collection: PS4 / PS5 / Switch / Xbox / PC (2024)"], dev:"Pandemic Studios"},
+  {id:"game-battlefront-2004", track:"games", medium:"Game", title:"Battlefront", t:-32, t2:4, when:"32 BBY – 4 ABY", ry:2004, rel:"2004", cont:"Legends", kind:"multiplayer", chars:"Clone, droid, Rebel and Imperial troopers", note:"Large-scale ground battles across both trilogies; historical campaigns loosely follow the films.", sys:["PS2", "PC", "Xbox", "Mac", "Mobile", "Classic Collection (2024)"], dev:"Pandemic Studios"},
+  {id:"game-elite-squadron", track:"games", medium:"Game", title:"Battlefront: Elite Squadron", t:-22, t2:4, when:"c. 22 BBY – 4 ABY", ry:2009, rel:"2009", cont:"Legends", kind:"story", chars:"X2 (clone trooper), his brother X1", note:"A clone's career from the Clone Wars into the Galactic Civil War, opposite a brother who joins the Empire.", sys:["PSP", "DS"], dev:"Rebellion"},
+  {id:"game-droids-1988", track:"games", medium:"Game", title:"Droids", t:-15, when:"c. 15 BBY", ry:1988, rel:"1988", cont:"Legends", kind:"story", chars:"R2-D2, C-3PO", note:"Adaptation of the Droids cartoon: the pair escape trouble on behalf of their latest masters.", sys:["Amstrad CPC", "ZX Spectrum"], dev:"Mastertronic"},
+  {id:"game-jedi-fallen-order", track:"games", medium:"Game", title:"Jedi: Fallen Order", t:-14, when:"14 BBY", ry:2019, rel:"2019", cont:"Canon", kind:"story", chars:"Cal Kestis, BD-1, Cere Junda, Greez Dritus, the Second Sister", note:"A hidden Jedi survivor races the Inquisitors to a holocron listing Force-sensitive children.", sys:["PC", "PS4", "Xbox One", "Stadia", "PS5", "Xbox Series"], dev:"Respawn Entertainment"},
+  {id:"game-beyond-victory", track:"games", medium:"Game", title:"Beyond Victory", t:-10, when:"c. 10 BBY (Solo era)", ry:2025, rel:"2025", cont:"Canon", kind:"story", chars:"Volo (aspiring podracer), Sebulba, Luuda", note:"Mixed-reality podracing: Volo's rise under Sebulba's mentorship, plus arcade and playset modes.", sys:["Meta Quest 3 / 3S"], dev:"ILM / Lucasfilm"},
+  {id:"game-jedi-survivor", track:"games", medium:"Game", title:"Jedi: Survivor", t:-9, when:"9 BBY", ry:2023, rel:"2023", cont:"Canon", kind:"story", chars:"Cal Kestis, Bode Akuna, Merrin, Dagan Gera", note:"Cal searches for the lost planet Tanalorr as a haven beyond the Empire's reach.", sys:["PC", "PS5", "Xbox Series", "PS4 / Xbox One (2025)"], dev:"Respawn Entertainment"},
+  {id:"game-force-unleashed", track:"games", medium:"Game", title:"The Force Unleashed", t:-3, t2:-2, when:"c. 3–2 BBY", ry:2008, rel:"2008", cont:"Legends", kind:"story", chars:"Starkiller (Galen Marek), Darth Vader, Juno Eclipse, PROXY, Rahm Kota", note:"Vader's secret apprentice hunts the last Jedi, then is used to spark the Rebel Alliance. Ultimate Sith Edition (2009) adds Tatooine and Hoth.", sys:["Xbox 360", "PS3", "PS2", "Wii", "PSP", "DS", "PC (2009)", "Mac", "iOS", "N-Gage", "Switch (2022)"], dev:"LucasArts"},
+  {id:"game-empire-at-war", track:"games", medium:"Game", title:"Empire at War", t:-2, t2:0, when:"2–0 BBY", ry:2006, rel:"2006", cont:"Legends", kind:"story", chars:"Mon Mothma, Garm Bel Iblis, Darth Vader, Grand Moff Tarkin", note:"Real-time strategy of the early rebellion, ending with the theft of the Death Star plans.", sys:["PC", "Mac"], dev:"Petroglyph"},
+  {id:"game-vader-immortal", track:"games", medium:"Game", title:"Vader Immortal", t:-1, when:"1 BBY", ry:2019, rel:"2019", cont:"Canon", kind:"story", chars:"Darth Vader, a smuggler (player), ZO-E3", note:"Three-part VR series: Vader forces a smuggler to unlock the ancient secrets hidden in Fortress Vader on Mustafar.", sys:["Oculus Rift", "Quest", "PSVR (2020)"], dev:"ILMxLAB"},
+  {id:"game-force-unleashed-2", track:"games", medium:"Game", title:"The Force Unleashed II", t:-1, when:"c. 1 BBY", ry:2010, rel:"2010", cont:"Legends", kind:"story", chars:"A Starkiller clone, Juno Eclipse, Rahm Kota, Boba Fett, Darth Vader", note:"A Starkiller clone escapes Kamino to find Juno and confront Vader.", sys:["Xbox 360", "PS3", "Wii", "DS", "PC", "iOS"], dev:"LucasArts"},
+  {id:"game-lethal-alliance", track:"games", medium:"Game", title:"Lethal Alliance", t:-1, when:"c. 1 BBY", ry:2006, rel:"2006", cont:"Legends", kind:"story", chars:"Rianna Saren, security droid Zeeo", note:"A Twi'lek thief and her droid take on an Imperial conspiracy just before the Rebellion's first victory.", sys:["PSP", "DS"], dev:"Ubisoft Montréal"},
+  {id:"game-secrets-of-the-empire", track:"games", medium:"Game", title:"Secrets of the Empire", t:-0.5, when:"c. 0 BBY", ry:2017, rel:"2017", offline:"The VOID venues closed", cont:"Canon", kind:"story", chars:"Rebel agents (players) disguised as stormtroopers, Cassian Andor, K-2SO", note:"Location-based VR: infiltrate an Imperial facility on Mustafar to recover intelligence for the Rebellion.", sys:["The VOID (location VR)"], dev:"ILMxLAB / The VOID"},
+  {id:"game-sw-arcade-1983", track:"games", medium:"Game", title:"Star Wars (arcade)", t:0, when:"0 BBY", ry:1983, rel:"1983", cont:"Legends", kind:"retelling", chars:"Luke Skywalker (Red Five)", note:"Vector-graphics attack on the Death Star, ending in the trench run.", sys:["Arcade", "Atari 2600", "C64", "Amiga", "Atari ST", "others"], dev:"Atari"},
+  {id:"game-death-star-interceptor", track:"games", medium:"Game", title:"Death Star Interceptor", t:0, when:"0 BBY", ry:1984, rel:"1984", cont:"Legends", kind:"retelling", chars:"An X-wing pilot", note:"Launch, fight through TIE fighters and hit the Death Star's exhaust port.", sys:["C64", "ZX Spectrum"], dev:"System 3"},
+  {id:"game-famicom-1987", track:"games", medium:"Game", title:"Star Wars (Famicom)", t:0, when:"0 BBY", ry:1987, rel:"1987", cont:"Legends", kind:"retelling", chars:"Luke Skywalker, Darth Vader", note:"Namco's loose A New Hope platformer, known for a shape-shifting Vader boss.", sys:["Famicom"], dev:"Namco"},
+  {id:"game-attack-on-the-death-star", track:"games", medium:"Game", title:"Attack on the Death Star", t:0, when:"0 BBY", ry:1991, rel:"1991", cont:"Legends", kind:"retelling", chars:"An X-wing pilot", note:"3D space-combat retelling of the Battle of Yavin.", sys:["PC-9801", "X68000"], dev:"M.N.M Software"},
+  {id:"game-sw-nes-1991", track:"games", medium:"Game", title:"Star Wars (NES)", t:0, when:"0 BBY", ry:1991, rel:"1991", cont:"Legends", kind:"retelling", chars:"Luke Skywalker, Han Solo, Leia", note:"Side-scrolling A New Hope, from Tatooine to the trench run.", sys:["NES", "Game Boy", "Master System", "Game Gear"], dev:"Beam Software"},
+  {id:"game-super-star-wars", track:"games", medium:"Game", title:"Super Star Wars", t:0, when:"0 BBY", ry:1992, rel:"1992", cont:"Legends", kind:"retelling", chars:"Luke Skywalker, Han Solo, Chewbacca", note:"Run-and-gun A New Hope on SNES.", sys:["SNES", "PS4 / Vita (2015)"], dev:"Sculptured Software / LucasArts"},
+  {id:"game-x-wing", track:"games", medium:"Game", title:"X-Wing", t:0, when:"0 BBY", ry:1993, rel:"1993", cont:"Legends", kind:"story", chars:"Keyan Farlander (player)", note:"A Rebel pilot's tours of duty, climaxing at the Death Star.", sys:["PC (DOS)", "Mac", "PC (Steam/GOG, 2014)"], dev:"Totally Games"},
+  {id:"game-rebel-assault", track:"games", medium:"Game", title:"Rebel Assault", t:0, when:"0 BBY", ry:1993, rel:"1993", cont:"Legends", kind:"story", chars:"Rookie One (player)", note:"Rail-shooter training of a new pilot, ending with the trench run.", sys:["PC (DOS)", "Mac", "Sega CD", "3DO"], dev:"LucasArts"},
+  {id:"game-sw-arcade-1993", track:"games", medium:"Game", title:"Star Wars Arcade", t:0, when:"0 BBY", ry:1993, rel:"1993", cont:"Legends", kind:"retelling", chars:"X-wing pilots", note:"Early 3D dogfights leading to the Death Star trench.", sys:["Arcade", "32X"], dev:"Sega"},
+  {id:"game-dark-forces", track:"games", medium:"Game", title:"Dark Forces", t:0, when:"0 BBY", ry:1995, rel:"1995", cont:"Legends", kind:"story", chars:"Kyle Katarn, Jan Ors, General Rom Mohc", note:"Mercenary Kyle Katarn steals the Death Star plans, then shuts down the Dark Trooper project.", sys:["PC (DOS)", "Mac", "PS1", "Remaster: PC / PS4 / PS5 / Switch / Xbox (2024)"], dev:"LucasArts"},
+  {id:"game-flight-of-the-falcon", track:"games", medium:"Game", title:"Flight of the Falcon", t:0, t2:4, when:"0–4 ABY", ry:2003, rel:"2003", cont:"Legends", kind:"retelling", chars:"Han Solo, Chewbacca", note:"Pilot the Millennium Falcon through the original trilogy's space battles.", sys:["GBA"], dev:"Pocket Studios"},
+  {id:"game-apprentice-of-the-force", track:"games", medium:"Game", title:"Trilogy: Apprentice of the Force", t:0, t2:4, when:"0–4 ABY", ry:2004, rel:"2004", cont:"Legends", kind:"retelling", chars:"Luke Skywalker", note:"Luke's path from Tatooine to Jedi, retelling all three films.", sys:["GBA"], dev:"Ubisoft"},
+  {id:"game-trilogy-arcade", track:"games", medium:"Game", title:"Star Wars Trilogy Arcade", t:0, t2:4, when:"0–4 ABY", ry:1998, rel:"1998", cont:"Legends", kind:"retelling", chars:"Luke Skywalker, Darth Vader", note:"Hoth, the Endor speeder chase and a saber duel with Vader.", sys:["Arcade"], dev:"Sega AM12"},
+  {id:"game-battle-pod", track:"games", medium:"Game", title:"Star Wars Battle Pod", t:0, t2:4, when:"0–4 ABY", ry:2014, rel:"2014", cont:"Non-canon", kind:"retelling", chars:"Luke, Han, Vader (vehicles)", note:"Dome-screen cabinet flying the films' big set pieces.", sys:["Arcade"], dev:"Bandai Namco"},
+  {id:"game-force-commander", track:"games", medium:"Game", title:"Force Commander", t:0, t2:4, when:"c. 0–4 ABY", ry:2000, rel:"2000", cont:"Legends", kind:"story", chars:"Brenn Tantor, Darth Vader", note:"3D strategy: an Imperial officer rises through the ranks, then defects to the Rebellion.", sys:["PC"], dev:"Ronin Entertainment"},
+  {id:"game-rebellion", track:"games", medium:"Game", title:"Rebellion", t:0, t2:4, when:"c. 0–4 ABY", ry:1998, rel:"1998", cont:"Legends", kind:"story", chars:"Mon Mothma, Luke, Vader, the Emperor", note:"Grand strategy: run the Rebellion or the Empire for control of the galaxy.", sys:["PC"], dev:"Coolhand Interactive"},
+  {id:"game-renegade-squadron", track:"games", medium:"Game", title:"Battlefront: Renegade Squadron", t:0, t2:4, when:"0–4 ABY", ry:2007, rel:"2007", cont:"Legends", kind:"story", chars:"Col Serra, Han Solo", note:"Han's hand-picked Rebel unit fights across the Galactic Civil War.", sys:["PSP"], dev:"Rebellion"},
+  {id:"game-rogue-leader", track:"games", medium:"Game", title:"Rogue Squadron II: Rogue Leader", t:0, t2:4, when:"0–4 ABY", ry:2001, rel:"2001", cont:"Legends", kind:"story", chars:"Luke Skywalker, Wedge Antilles", note:"Fly Rogue Squadron from the Death Star trench to the Battle of Endor.", sys:["GameCube"], dev:"Factor 5"},
+  {id:"game-rebel-strike", track:"games", medium:"Game", title:"Rogue Squadron III: Rebel Strike", t:0, t2:4, when:"0–4 ABY", ry:2003, rel:"2003", cont:"Legends", kind:"story", chars:"Luke Skywalker, Wedge Antilles", note:"Air and on-foot missions through the original trilogy.", sys:["GameCube"], dev:"Factor 5"},
+  {id:"game-battlefront-2015", track:"games", medium:"Game", title:"Battlefront", t:0, t2:5, when:"0–5 ABY", ry:2015, rel:"2015", cont:"Canon", kind:"multiplayer", chars:"Luke, Vader, Boba Fett, Leia, Han, Palpatine (heroes)", note:"Multiplayer battles across the original trilogy; the Battle of Jakku and Scarif arrive as expansions.", sys:["PS4", "PC", "Xbox One"], dev:"EA DICE"},
+  {id:"game-galaxies", track:"games", medium:"Game", title:"Galaxies", t:1, when:"From 1 ABY", ry:2003, rel:"2003", offline:"Closed Dec 2011", cont:"Legends", kind:"story", chars:"Player-created characters", note:"Sandbox MMO set after the Battle of Yavin; expansions added space flight and Kashyyyk.", sys:["PC"], dev:"Sony Online Entertainment"},
+  {id:"game-tie-fighter", track:"games", medium:"Game", title:"TIE Fighter", t:1, t2:3, when:"c. 1–3 ABY", ry:1994, rel:"1994", cont:"Legends", kind:"story", chars:"Maarek Stele (player), Grand Admiral Thrawn, Darth Vader", note:"An Imperial pilot uncovers a traitorous admiral's conspiracy.", sys:["PC (DOS)", "Mac", "PC (Steam/GOG, 2014)"], dev:"Totally Games"},
+  {id:"game-masters-of-teras-kasi", track:"games", medium:"Game", title:"Masters of Teräs Käsi", t:1.5, when:"c. 1–3 ABY", ry:1997, rel:"1997", cont:"Legends", kind:"story", chars:"Luke, Han, Leia, Chewbacca, Boba Fett, Mara Jade, Arden Lyn", note:"Fighting game: the Emperor's martial-arts assassin Arden Lyn hunts the Rebel heroes.", sys:["PS1"], dev:"Behaviour Interactive"},
+  {id:"game-rebel-assault-2", track:"games", medium:"Game", title:"Rebel Assault II: The Hidden Empire", t:2, when:"c. 2 ABY", ry:1995, rel:"1995", cont:"Legends", kind:"story", chars:"Rookie One (player)", note:"Rookie One uncovers the Empire's Phantom TIE cloaking project.", sys:["PC (DOS)", "PS1", "PC", "Mac"], dev:"LucasArts"},
+  {id:"game-rogue-squadron", track:"games", medium:"Game", title:"Rogue Squadron", t:1, t2:3, when:"c. 1–3 ABY", ry:1998, rel:"1998", cont:"Legends", kind:"story", chars:"Luke Skywalker, Wedge Antilles, Crix Madine", note:"Luke and Wedge lead the newly formed Rogue Squadron between A New Hope and Empire.", sys:["PC", "N64"], dev:"Factor 5"},
+  {id:"game-x-wing-vs-tie", track:"games", medium:"Game", title:"X-Wing vs. TIE Fighter", t:3, when:"c. 3 ABY", ry:1997, rel:"1997", cont:"Legends", kind:"multiplayer", chars:"Rebel and Imperial pilots", note:"Multiplayer dogfighting; the Balance of Power expansion adds full campaigns for both sides.", sys:["PC"], dev:"Totally Games"},
+  {id:"game-demolition", track:"games", medium:"Game", title:"Demolition", t:3, when:"Galactic Civil War (placement loose)", ry:2000, rel:"2000", cont:"Legends", kind:"story", chars:"Boba Fett, Aurra Sing, and other combat drivers", note:"Vehicular combat tournaments across the galaxy.", sys:["PS1", "Dreamcast"], dev:"Luxoflux"},
+  {id:"game-yoda-stories", track:"games", medium:"Game", title:"Yoda Stories", t:3, when:"c. 3 ABY", ry:1997, rel:"1997", cont:"Legends", kind:"story", chars:"Luke Skywalker, Yoda", note:"Randomly generated missions from Dagobah during Luke's training.", sys:["PC", "GBC (1999)"], dev:"LucasArts"},
+  {id:"game-outlaws", track:"games", medium:"Game", title:"Outlaws", t:3, when:"3 ABY", ry:2024, rel:"2024", cont:"Canon", kind:"story", chars:"Kay Vess, Nix, ND-5, Jaylen Vrax, Sliro Barsha", note:"Open-world scoundrel story: Kay assembles a crew for a heist on the Zerek Besh syndicate to buy her freedom.", sys:["PC", "PS5", "Xbox Series", "Switch 2 (2025)"], dev:"Massive Entertainment"},
+  {id:"game-shadows-of-the-empire", track:"games", medium:"Game", title:"Shadows of the Empire", t:3.5, when:"3.5 ABY", ry:1996, rel:"1996", cont:"Legends", kind:"story", chars:"Dash Rendar, Prince Xizor, Luke, Leia, Boba Fett", note:"Between Empire and Jedi: track Boba Fett and the frozen Han while Black Sun's Xizor plots against Vader.", sys:["N64", "PC"], dev:"LucasArts"},
+  {id:"game-x-wing-alliance", track:"games", medium:"Game", title:"X-Wing Alliance", t:3.5, t2:4, when:"3.5–4 ABY", ry:1999, rel:"1999", cont:"Legends", kind:"story", chars:"Ace Azzameen (player), the Azzameen family", note:"A trader family's son joins the Rebellion, ending in the Falcon at the Battle of Endor.", sys:["PC"], dev:"Totally Games"},
+  {id:"game-esb-1982", track:"games", medium:"Game", title:"The Empire Strikes Back (Atari)", t:3, when:"3 ABY", ry:1982, rel:"1982", cont:"Legends", kind:"retelling", chars:"A snowspeeder pilot", note:"Hold off the AT-AT advance on Hoth.", sys:["Atari 2600", "Intellivision"], dev:"Parker Brothers"},
+  {id:"game-esb-arcade", track:"games", medium:"Game", title:"The Empire Strikes Back (arcade)", t:3, when:"3 ABY", ry:1985, rel:"1985", cont:"Legends", kind:"retelling", chars:"Luke, the Millennium Falcon", note:"Snowspeeders on Hoth, then the asteroid field.", sys:["Arcade", "Amiga", "Atari ST", "C64", "ZX Spectrum", "Amstrad CPC", "BBC Micro"], dev:"Atari"},
+  {id:"game-esb-nes", track:"games", medium:"Game", title:"The Empire Strikes Back (NES)", t:3, when:"3 ABY", ry:1992, rel:"1992", cont:"Legends", kind:"retelling", chars:"Luke Skywalker", note:"Hoth to Cloud City as a side-scroller.", sys:["NES", "Game Boy"], dev:"Sculptured Software"},
+  {id:"game-super-esb", track:"games", medium:"Game", title:"Super Empire Strikes Back", t:3, when:"3 ABY", ry:1993, rel:"1993", cont:"Legends", kind:"retelling", chars:"Luke, Han, Chewbacca", note:"SNES run-and-gun retelling of Empire.", sys:["SNES"], dev:"Sculptured Software / LucasArts"},
+  {id:"game-death-star-battle", track:"games", medium:"Game", title:"Return of the Jedi: Death Star Battle", t:4, when:"4 ABY", ry:1983, rel:"1983", cont:"Legends", kind:"retelling", chars:"The Millennium Falcon", note:"Slip through the shield and destroy the second Death Star.", sys:["Atari 2600", "Atari 5200", "Atari 8-bit", "ZX Spectrum"], dev:"Parker Brothers"},
+  {id:"game-rotj-arcade", track:"games", medium:"Game", title:"Return of the Jedi (arcade)", t:4, when:"4 ABY", ry:1984, rel:"1984", cont:"Legends", kind:"retelling", chars:"Leia, Chewbacca, Lando", note:"Isometric speeder-bike chase on Endor, then the Death Star run.", sys:["Arcade", "Amiga", "Atari ST", "C64", "ZX Spectrum", "Amstrad CPC", "BBC Micro"], dev:"Atari"},
+  {id:"game-super-rotj", track:"games", medium:"Game", title:"Super Return of the Jedi", t:4, when:"4 ABY", ry:1994, rel:"1994", cont:"Legends", kind:"retelling", chars:"Luke, Leia, Han, Wicket", note:"SNES retelling from Jabba's palace to the Emperor's throne room.", sys:["SNES", "Game Boy", "Game Gear"], dev:"Sculptured Software / LucasArts"},
+  {id:"game-forces-of-corruption", track:"games", medium:"Game", title:"Empire at War: Forces of Corruption", t:4, when:"c. 2 BBY – 4 ABY", ry:2006, rel:"2006", cont:"Legends", kind:"story", chars:"Tyber Zann, Urai Fen, Silri", note:"Crime lord Tyber Zann builds the Zann Consortium into a third galactic power.", sys:["PC"], dev:"Petroglyph"},
+  {id:"game-battlefront-2-2017", track:"games", medium:"Game", title:"Battlefront II", t:4, t2:5, when:"4–5 ABY (epilogue 34 ABY)", ry:2017, rel:"2017", cont:"Canon", kind:"story", chars:"Iden Versio, Del Meeko, Gideon Hask, Inferno Squad", note:"An Imperial commando defects after Operation Cinder and fights for the New Republic; Resurrection DLC jumps to the sequel era.", sys:["PS4", "PC", "Xbox One"], dev:"EA DICE / Motive"},
+  {id:"game-uprising", track:"games", medium:"Game", title:"Uprising", t:4, when:"4 ABY", ry:2015, rel:"2015", offline:"Closed 2016", cont:"Canon", kind:"story", chars:"Player-created smuggler, Governor Adelhard", note:"Mobile RPG: break the Anoat sector's Iron Blockade in the weeks after Endor.", sys:["iOS", "Android"], dev:"Kabam"},
+  {id:"game-squadrons", track:"games", medium:"Game", title:"Squadrons", t:4, t2:5, when:"4–5 ABY", ry:2020, rel:"2020", cont:"Canon", kind:"story", chars:"Vanguard Squadron, Titan Squadron, Hera Syndulla, Terisa Kerrill", note:"Cockpit dogfighter told from both sides: New Republic and Imperial pilots clash over the Starhawk project.", sys:["PC", "PS4", "Xbox One", "VR (PC / PSVR)"], dev:"Motive Studio"},
+  {id:"game-hunters", track:"games", medium:"Game", title:"Hunters", t:4.5, when:"After Return of the Jedi (c. 4+ ABY)", ry:2024, rel:"2024", offline:"Closed Oct 1, 2025", cont:"Canon", kind:"multiplayer", chars:"Grozz, Sentinel, Rieve, Aran Tal and other Hunters", note:"Team arena battles on Vespaara as the galaxy reels from the Empire's fall.", sys:["Switch", "iOS", "Android"], dev:"NaturalMotion / Zynga"},
+  {id:"game-galactic-racer", track:"games", medium:"Game", title:"Galactic Racer", t:5, when:"After Return of the Jedi (New Republic era)", ry:2026, rel:"Oct 6, 2026", soon:true, cont:"Canon", kind:"story", chars:"Shade (player)", note:"A newcomer enters the Galactic League on the Outer Rim racing circuit, out for revenge.", sys:["PS5", "Xbox Series", "PC"], dev:"Fuse Games"},
+  {id:"game-jedi-knight", track:"games", medium:"Game", title:"Jedi Knight: Dark Forces II", t:5, when:"5 ABY", ry:1997, rel:"1997", cont:"Legends", kind:"story", chars:"Kyle Katarn, Jerec and his Dark Jedi", note:"Kyle learns the Force to stop Jerec from seizing the Valley of the Jedi.", sys:["PC"], dev:"LucasArts"},
+  {id:"game-mysteries-of-the-sith", track:"games", medium:"Game", title:"Jedi Knight: Mysteries of the Sith", t:10, when:"10 ABY", ry:1998, rel:"1998", cont:"Legends", kind:"story", chars:"Mara Jade, Kyle Katarn", note:"Expansion: Mara trains under Kyle, who is pulled toward the dark side.", sys:["PC"], dev:"LucasArts"},
+  {id:"game-jedi-outcast", track:"games", medium:"Game", title:"Jedi Knight II: Jedi Outcast", t:12, when:"12 ABY", ry:2002, rel:"2002", cont:"Legends", kind:"story", chars:"Kyle Katarn, Desann, Tavion Axmis, Luke Skywalker", note:"Kyle returns to the Force to stop Desann's army of Reborn.", sys:["PC", "Mac", "Xbox", "GameCube", "PS4 / Switch (2019)"], dev:"Raven Software"},
+  {id:"game-jedi-academy", track:"games", medium:"Game", title:"Jedi Knight: Jedi Academy", t:14, when:"14 ABY", ry:2003, rel:"2003", cont:"Legends", kind:"story", chars:"Jaden Korr (player), Kyle Katarn, Rosh Penin, Tavion", note:"A new student at Luke's academy battles the Disciples of Ragnos cult.", sys:["PC", "Mac", "Xbox", "PS4 / Switch (2020)"], dev:"Raven Software"},
+  {id:"game-tales-galaxys-edge", track:"games", medium:"Game", title:"Tales from the Galaxy's Edge", t:34, when:"c. 34 ABY (with tales from other eras)", ry:2020, rel:"2020", cont:"Canon", kind:"story", chars:"A droid technician (player), bartender Seezelslak", note:"VR: stranded on Batuu after a pirate attack, with side tales set in other eras. Last Call (2021) expands it.", sys:["Quest", "PSVR2 (2023)"], dev:"ILMxLAB"},
+  {id:"game-lego-2005", track:"games", medium:"Game", title:"LEGO Star Wars: The Video Game", t:-32, t2:-19, when:"32–19 BBY", ry:2005, rel:"2005", cont:"Non-canon", kind:"retelling", chars:"The prequel cast in LEGO", note:"Co-op brick-built retelling of Episodes I–III.", sys:["PC", "Mac", "PS2", "Xbox", "GameCube", "GBA"], dev:"Traveller's Tales"},
+  {id:"game-lego-2006", track:"games", medium:"Game", title:"LEGO Star Wars II: The Original Trilogy", t:0, t2:4, when:"0–4 ABY", ry:2006, rel:"2006", cont:"Non-canon", kind:"retelling", chars:"The original trilogy cast in LEGO", note:"Episodes IV–VI in LEGO.", sys:["PC", "Mac", "PS2", "PSP", "Xbox", "Xbox 360", "GameCube", "GBA", "DS"], dev:"Traveller's Tales"},
+  {id:"game-lego-complete-saga", track:"games", medium:"Game", title:"LEGO Star Wars: The Complete Saga", t:-32, t2:4, when:"32 BBY – 4 ABY", ry:2007, rel:"2007", cont:"Non-canon", kind:"retelling", chars:"Both trilogies' casts in LEGO", note:"Episodes I–VI combined and expanded.", sys:["PC", "Mac", "Xbox 360", "PS3", "Wii", "DS", "iOS", "Android"], dev:"Traveller's Tales"},
+  {id:"game-lego-clone-wars", track:"games", medium:"Game", title:"LEGO Star Wars III: The Clone Wars", t:-22, t2:-21, when:"22–21 BBY", ry:2011, rel:"2011", cont:"Non-canon", kind:"retelling", chars:"The Clone Wars cast in LEGO", note:"Seasons 1–2 of The Clone Wars in LEGO.", sys:["PC", "Mac", "Xbox 360", "PS3", "PSP", "Wii", "DS", "3DS"], dev:"Traveller's Tales"},
+  {id:"game-lego-tfa", track:"games", medium:"Game", title:"LEGO Star Wars: The Force Awakens", t:34, when:"34 ABY", ry:2016, rel:"2016", cont:"Non-canon", kind:"retelling", chars:"Rey, Finn, Poe, Kylo Ren in LEGO", note:"The Force Awakens plus bridging levels between Return of the Jedi and Episode VII.", sys:["PC", "Mac", "PS4", "PS3", "Vita", "Xbox One", "Xbox 360", "Wii U", "3DS", "iOS"], dev:"TT Games"},
+  {id:"game-lego-skywalker-saga", track:"games", medium:"Game", title:"LEGO Star Wars: The Skywalker Saga", t:-32, t2:35, when:"32 BBY – 35 ABY", ry:2022, rel:"2022", cont:"Non-canon", kind:"retelling", chars:"All nine Skywalker films in LEGO", note:"Open-hub retelling of Episodes I–IX.", sys:["PC", "PS4", "PS5", "Xbox One", "Xbox Series", "Switch"], dev:"TT Games"},
+  {id:"game-jedi-3", track:"games", medium:"Game", title:"Star Wars Jedi 3", t:null, when:"Not announced", ry:9999, rel:"TBA", soon:true, cont:"Canon", kind:"story", chars:"Cal Kestis (expected)", note:"Third game in the Jedi series; confirmed in development, no story details.", sys:["Not announced"], dev:"Respawn Entertainment"}
+];
+const GAME_EXTRAS = {"other": [{"title": "Jedi Arena", "year": "1983", "platforms": "Atari 2600", "type": "Lightsaber duel vs. training remote"}, {"title": "Star Wars Chess", "year": "1993", "platforms": "PC, Sega CD", "type": "Chess"}, {"title": "Monopoly Star Wars", "year": "1997", "platforms": "PC", "type": "Board game"}, {"title": "Millennium Falcon CD-ROM Playset", "year": "1998", "platforms": "PC", "type": "Toy-linked playset"}, {"title": "Behind the Magic / Episode I Insider's Guide", "year": "1998–99", "platforms": "PC, Mac", "type": "Encyclopedia"}, {"title": "Episode I pinball", "year": "1999", "platforms": "Pinball", "type": "Pinball"}, {"title": "Droid Works, Pit Droids, The Gungan Frontier", "year": "1999", "platforms": "PC, Mac", "type": "Educational / puzzle"}, {"title": "Episode I learning titles (Yoda's Challenge, Anakin's Speedway, Jar Jar's Journey, Jabba's Game Galaxy)", "year": "1999–2000", "platforms": "PC, Mac", "type": "Educational"}, {"title": "Super Bombad Racing", "year": "2001", "platforms": "PS2", "type": "Kart racing"}, {"title": "Browser games (Carbon Connection, Force Flight, Clones vs. Droids, Rebels: Ghost Raid…)", "year": "2003–14", "platforms": "Browser", "type": "Web mini-games"}, {"title": "Mobile-phone wave (Battle for the Republic, Grievous Getaway, Lightsaber Combat, Imperial Ace 3D…)", "year": "2005–06", "platforms": "Feature phones", "type": "Mobile"}, {"title": "Jakks Pacific Plug It In & Play (Lightsaber Battle, Original Trilogy, Republic Squadron)", "year": "2005–09", "platforms": "TV plug-and-play", "type": "Toy console"}, {"title": "Soulcalibur IV (Vader, Yoda, Starkiller guests)", "year": "2008", "platforms": "PS3, Xbox 360", "type": "Crossover fighter"}, {"title": "Jedi Math, Jedi Reading, Jedi Trials", "year": "2008–09", "platforms": "Leapster, Didj", "type": "Educational"}, {"title": "Battlefront: Mobile Squadrons", "year": "2009", "platforms": "Feature phones", "type": "Mobile"}, {"title": "iOS wave (Trench Run, Battle for Hoth, Falcon Gunner, Cantina, Imperial Academy)", "year": "2009–11", "platforms": "iOS", "type": "Mobile"}, {"title": "Angry Birds Star Wars I & II", "year": "2012–13", "platforms": "iOS, Android, consoles", "type": "Crossover"}, {"title": "LEGO Star Wars mobile/online (Yoda Chronicles, Microfighters, Battles, Castaways…)", "year": "2009–21", "platforms": "iOS, Android, Apple Arcade, PC", "type": "LEGO spin-offs"}, {"title": "Star Wars Pinball (Zen tables)", "year": "2013–18", "platforms": "Consoles, PC, mobile", "type": "Pinball"}, {"title": "Tiny Death Star", "year": "2013", "platforms": "iOS, Android, Windows Phone", "type": "Tower sim (closed 2014)"}, {"title": "Force Collection, Assault Team, Galactic Defense, Journeys", "year": "2013–14", "platforms": "iOS, Android", "type": "Mobile"}, {"title": "Commander", "year": "2014", "platforms": "iOS, Android, Windows Phone", "type": "Base-builder strategy"}, {"title": "Galaxy of Heroes", "year": "2015", "platforms": "iOS, Android", "type": "Character-collector RPG (all eras)"}, {"title": "Heroes Path, Card Trader, Rebels: Recon Missions", "year": "2015", "platforms": "iOS, Android", "type": "Mobile"}, {"title": "Disney Infinity 3.0 (Star Wars playsets)", "year": "2015", "platforms": "Consoles, PC, mobile", "type": "Toys-to-life crossover"}, {"title": "Force Arena", "year": "2017", "platforms": "iOS, Android", "type": "Arena battler (closed 2019)"}, {"title": "Puzzle Droids", "year": "2017", "platforms": "iOS, Android", "type": "Match-3 puzzle"}, {"title": "Jedi Challenges", "year": "2017", "platforms": "Lenovo Mirage AR", "type": "AR lightsaber / holochess"}, {"title": "The Sims 4: Journey to Batuu", "year": "2020", "platforms": "PC, Mac, PS4, Xbox One", "type": "Crossover pack"}, {"title": "Minecraft Star Wars", "year": "2020", "platforms": "Most platforms", "type": "Crossover DLC"}, {"title": "PowerWash Simulator 2: Star Wars Pack", "year": "2026", "platforms": "PC, PS5, Xbox Series, Switch 2", "type": "Crossover DLC"}, {"title": "Monopoly: Star Wars Heroes vs. Villains", "year": "2026", "platforms": "PC, PS5, Xbox Series, Switch, Switch 2", "type": "Board game"}], "cancelled": [{"title": "Return of the Jedi: Ewok Adventure", "year": "1983"}, {"title": "Jedi Knight III: Brink of Darkness", "year": "2000s"}, {"title": "Imperial Commando", "year": "2000s"}, {"title": "Battlefront III", "year": "2008"}, {"title": "Knights of the Old Republic III", "year": "2000s"}, {"title": "First Assault", "year": "2012"}, {"title": "1313", "year": "2013"}, {"title": "Outpost", "year": "2013"}, {"title": "Attack Squadrons", "year": "2014"}, {"title": "Battle of the Sith Lords", "year": "2015"}, {"title": "The Force Unleashed III", "year": "—"}, {"title": "Project Ragtag", "year": "2017"}, {"title": "Rivals", "year": "—"}, {"title": "Rise to Power", "year": "—"}], "sources": [{"label": "Wikipedia — List of Star Wars video games", "url": "https://en.wikipedia.org/wiki/List_of_Star_Wars_video_games"}, {"label": "Game Informer — Zero Company release date", "url": "https://gameinformer.com/sgf-2026/2026/06/05/star-wars-zero-company-the-single-player-tactics-game-gets-august-release-date"}, {"label": "StarWars.com — Zero Company", "url": "https://www.starwars.com/games-apps/star-wars-zero-company"}, {"label": "StarWars.com — Galactic Racer reveal", "url": "https://www.starwars.com/news/star-wars-galactic-racer-reveal-trailer"}, {"label": "GamesRadar+ — Galactic Racer is set after Return of the Jedi", "url": "https://www.gamesradar.com/games/racing/star-wars-galactic-racer-is-a-sports-movie-story-set-after-return-of-the-jedi-because-it-mirrors-the-real-life-post-ww2-motorsports-boom/"}, {"label": "StarWars.com — Beyond Victory launch", "url": "https://www.starwars.com/news/beyond-victory-launch-feature"}, {"label": "StarWars.com — Fate of the Old Republic reveal", "url": "https://www.starwars.com/news/star-wars-fate-of-the-old-republic-trailer"}, {"label": "Star Wars News Net — KOTOR Remake status", "url": "https://www.starwarsnewsnet.com/2026/03/knights-of-the-old-republic-remake-still-in-development-no-word-on-release-window.html"}, {"label": "Game Informer — Eclipse still years off", "url": "https://gameinformer.com/2026/04/07/quantic-dreams-star-wars-eclipse-is-reportedly-still-years-off"}, {"label": "Nintendo Life — Hunters servers closing", "url": "https://www.nintendolife.com/news/2025/03/star-wars-hunters-servers-to-close-later-this-year"}, {"label": "GameSkinny — Hunters timeline", "url": "https://www.gameskinny.com/tips/star-wars-hunters-canon-status-and-timeline-explained/"}, {"label": "StarWars.com — Vader Immortal", "url": "https://www.starwars.com/news/vader-immortal"}, {"label": "GamesRadar+ — Star Wars timeline", "url": "https://www.gamesradar.com/star-wars-timeline/"}]};
+DATA.push(...GAME_DATA);
+/* ==== END GAMES ==== */
+
+/* ============================================================
+   ERAS — the accent colour is derived from where you are standing
+   ============================================================ */
+const ERAS = [
+  {max:-5000, name:"Dawn of the Jedi",        hue:"#7E6BD1"},
+  {max:-300,  name:"Old Republic",            hue:"#9A5CC0"},
+  {max:-100,  name:"High Republic",           hue:"#D9B45B"},
+  {max:-18.9, name:"Fall of the Jedi",        hue:"#C0763A"},
+  {max:-5,    name:"Reign of the Empire",     hue:"#C4453C"},
+  {max:4.5,   name:"Age of Rebellion",        hue:"#3F7FD1"},
+  {max:33.5,  name:"New Republic",            hue:"#35A38B"},
+  {max:36,    name:"Rise of the First Order", hue:"#C93C5B"},
+  {max:Infinity, name:"New Jedi Order",       hue:"#8FB8D9"}
+];
+const NO_ERA = {name:"Outside the timeline", hue:"#9AA4B2"};
+
+function eraOf(item){
+  if(item.t === null) return NO_ERA;
+  return ERAS.find(e => item.t < e.max) || ERAS[ERAS.length-1];
+}
+
+const GLYPH = {Film:"◈ FILM", Films:"◈ FILMS", Series:"▤ SERIES", Novel:"▣ NOVEL", Legends:"▣ LEGENDS", Anthology:"▤ SHORTS", Game:"▦ GAME"};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let track = "screen";
+let mode  = "timeline";
+let index = 0;
+let list  = [];
+
+const $ = id => document.getElementById(id);
+const rail = $("rail"), strip = $("strip");
+
+/* signed log keeps 25,000 BBY and 9 ABY on the same strip */
+const compress = t => Math.sign(t) * Math.log10(1 + Math.abs(t));
+
+function sortList(){
+  const arr = DATA.filter(d => d.track === track);
+  arr.sort((a,b) => mode === "release"
+    ? (a.ry - b.ry) || (a.t ?? 1e9) - (b.t ?? 1e9)
+    : ((a.t ?? 1e9) - (b.t ?? 1e9)) || (a.ry - b.ry));
+  return arr;
+}
+
+/* position 0–100 along the strip, spaced by real distance */
+function positions(){
+  const vals = list.map(d => mode === "release"
+    ? (d.ry === 9999 ? null : d.ry)
+    : (d.t === null ? null : compress(d.t)));
+  const known = vals.filter(v => v !== null);
+  const lo = Math.min(...known), hi = Math.max(...known);
+  const span = (hi - lo) || 1;
+  const pos = vals.map(v => v === null ? 100 : 2 + ((v - lo) / span) * 96);
+
+  /* titles sharing a year would stack into one tick — fan them apart
+     just enough that each stays individually grabbable */
+  for(let i = 1; i < pos.length; i++){
+    if(pos[i] - pos[i-1] < 0.6) pos[i] = pos[i-1] + 0.6;
+  }
+  const over = pos[pos.length-1] - 99;
+  if(over > 0) for(let i = 0; i < pos.length; i++) pos[i] -= over * (i / (pos.length-1));
+  return pos;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+/* cover images: near-2:3 art fills the card; anything squarer or wider is shown whole */
+const coverImgs = src => `<img class="cover-bg" alt="" src="${src}"><img class="cover" alt="" src="${src}">`;
+function watchFit(art){
+  const img = art && art.querySelector("img.cover");
+  if(!img) return;
+  const check = () => {
+    const r = img.naturalWidth / img.naturalHeight;
+    art.classList.toggle("fit", r > 0.85 || r < 0.5);
+  };
+  if(img.complete && img.naturalWidth) check();
+  else img.addEventListener("load", check, {once:true});
+}
+
+function buildRail(){
+  rail.innerHTML = "";
+  list.forEach((d,i) => {
+    const era = eraOf(d);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.setProperty("--card-hue", era.hue);
+    card.dataset.i = i;
+    const src = COVERS[d.id];
+    card.innerHTML = `
+      <div class="art${src ? " has-cover" : ""}">
+        ${src ? coverImgs(src) : ""}
+        <span class="years">${mode === "release" ? d.rel : d.when}</span>
+        <span class="glyph">${GLYPH[d.medium] || d.medium}</span>
+        <div class="rule"></div>
+        <div class="name">${d.title}</div>
+      </div>`;
+    watchFit(card.querySelector(".art"));
+    card.addEventListener("click", () => go(i));
+    enableDrop(card, d);
+    rail.appendChild(card);
+  });
+}
+
+/* Ticks are keyed to the title, not to a slot. Switching order therefore
+   slides every tick to its new spacing — the two orders are visibly
+   different distributions of the same set. */
+const tickEls = new Map();
+
+function buildTicks(){
+  strip.querySelectorAll(".tick,.strip-label").forEach(n => n.remove());
+  tickEls.clear();
+  list.forEach(d => {
+    const tk = document.createElement("i");
+    tk.className = "tick";
+    strip.appendChild(tk);
+    tickEls.set(d.id, tk);
+  });
+  const lo = document.createElement("span"), hi = document.createElement("span");
+  lo.className = hi.className = "strip-label";
+  lo.id = "stripLo"; hi.id = "stripHi";
+  lo.style.left = "0%"; lo.style.transform = "none";
+  hi.style.left = "100%"; hi.style.transform = "translateX(-100%)";
+  strip.append(lo, hi);
+  layoutTicks();
+}
+
+function layoutTicks(){
+  const pos = positions();
+  list.forEach((d,i) => {
+    const tk = tickEls.get(d.id);
+    if(tk) tk.style.left = pos[i] + "%";
+  });
+  $("stripLo").textContent = mode === "release" ? list[0].rel : list[0].when;
+  $("stripHi").textContent = mode === "release"
+    ? list[list.length-1].rel : list[list.length-1].when;
+}
+
+function update(animateReadout = true){
+  const d = list[index], era = eraOf(d);
+
+  document.documentElement.style.setProperty("--accent", era.hue);
+  document.documentElement.style.setProperty("--accent-soft", era.hue + "28");
+
+  rail.style.setProperty("--i", index);
+  [...rail.children].forEach((c,i) => c.classList.toggle("is-active", i === index));
+  tickEls.forEach((tk,id) => tk.classList.toggle("is-active", id === d.id));
+
+  $("era").textContent = era.name;
+  $("title").textContent = d.title;
+  $("meta").innerHTML = `
+    <b>${d.when}</b><span class="sep"></span>
+    <span>${d.medium}</span><span class="sep"></span>
+    <span>Released ${d.rel}</span>
+    ${d.soon ? `<span class="flag">Upcoming</span>` : ""}
+    ${d.cont ? `<span class="flag quiet">${d.cont}</span>` : ""}
+    ${d.kind === "retelling" ? `<span class="flag quiet">Film retelling</span>` : ""}
+    ${d.kind === "multiplayer" ? `<span class="flag quiet">Multiplayer</span>` : ""}
+    ${d.offline ? `<span class="flag off">Offline · ${d.offline}</span>` : ""}`;
+  $("note").textContent = d.note || "";
+  $("cast").innerHTML = d.chars ? `<span>Cast</span>${d.chars}` : "";
+  $("systems").innerHTML = d.sys ? d.sys.map(s => `<li>${s}</li>`).join("") : "";
+  $("counter").innerHTML = `<b>${String(index+1).padStart(2,"0")}</b> / ${String(list.length).padStart(2,"0")}`;
+
+  $("prevBtn").disabled = index === 0;
+  $("nextBtn").disabled = index === list.length - 1;
+  strip.setAttribute("aria-valuenow", index + 1);
+  strip.setAttribute("aria-valuemax", list.length);
+  strip.setAttribute("aria-valuetext", `${d.title}, ${d.when}`);
+
+  if(animateReadout){
+    const r = $("readout");
+    r.classList.remove("swap"); void r.offsetWidth; r.classList.add("swap");
+  }
+}
+
+function resolve(keepId){
+  list = sortList();
+  const found = keepId ? list.findIndex(d => d.id === keepId) : -1;
+  index = found > -1 ? found : Math.min(index, list.length - 1);
+}
+
+/* new collection: everything is replaced */
+function rebuild(keepId){
+  resolve(keepId);
+  buildRail(); buildTicks(); update();
+}
+
+/* same collection, new order: cards cut, ticks slide */
+function reorder(keepId){
+  const win = document.querySelector(".rail-window");
+  win.style.transition = "opacity 150ms linear";
+  win.style.opacity = "0";
+  setTimeout(() => {
+    resolve(keepId);
+    buildRail(); layoutTicks(); update(false);
+    rail.style.transition = "none";
+    requestAnimationFrame(() => {
+      rail.style.transition = "";
+      win.style.opacity = "1";
+    });
+  }, 150);
+}
+
+function go(i){
+  const n = Math.max(0, Math.min(list.length - 1, i));
+  if(n === index) return;
+  index = n; update();
+}
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+$("prevBtn").addEventListener("click", () => go(index - 1));
+$("nextBtn").addEventListener("click", () => go(index + 1));
+
+$("trackSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  track = b.dataset.track; index = 0;
+  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", x === b));
+  $("gameNav").hidden = track !== "games";
+  setGameView("timeline");
+  rebuild();
+});
+
+$("modeSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.mode === mode) return;
+  const keep = list[index].id;
+  mode = b.dataset.mode;
+  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", x === b));
+  reorder(keep);
+});
+
+$("cleanBtn").addEventListener("click", () => {
+  const on = document.body.classList.toggle("clean");
+  $("cleanBtn").setAttribute("aria-pressed", on);
+  /* never park focus on the exit button when entering — a focus ring would show in the recording */
+  if(on && document.activeElement === $("cleanBtn")) $("cleanBtn").blur();
+  if(!on && document.activeElement === $("exitClean")) $("cleanBtn").focus({preventScroll:true});
+});
+$("exitClean").addEventListener("click", () => $("cleanBtn").click());
+
+/* swipe the card rail on touch screens */
+const railWin = document.querySelector(".rail-window");
+let swipe = null, lastSwipe = 0;
+railWin.addEventListener("pointerdown", e => {
+  if(e.pointerType !== "mouse") swipe = {x:e.clientX, y:e.clientY};
+});
+railWin.addEventListener("pointerup", e => {
+  if(!swipe) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null;
+  if(Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+  const step = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--step")) || 188;
+  go(index - Math.sign(dx) * Math.max(1, Math.round(Math.abs(dx) / step)));
+  lastSwipe = Date.now();
+});
+railWin.addEventListener("pointercancel", () => swipe = null);
+/* a swipe that ends on a card is not also a tap on that card */
+railWin.addEventListener("click", e => { if(Date.now() - lastSwipe < 400) e.stopPropagation(); }, true);
+
+/* drag the strip, snap to the nearest title */
+let dragging = false;
+function pick(clientX){
+  const box = strip.getBoundingClientRect();
+  const pct = ((clientX - box.left) / box.width) * 100;
+  const pos = positions();
+  let best = 0, bestD = Infinity;
+  pos.forEach((p,i) => { const dd = Math.abs(p - pct); if(dd < bestD){ bestD = dd; best = i; } });
+  go(best);
+}
+strip.addEventListener("pointerdown", e => {
+  dragging = true; strip.setPointerCapture(e.pointerId); pick(e.clientX);
+});
+strip.addEventListener("pointermove", e => { if(dragging) pick(e.clientX); });
+strip.addEventListener("pointerup",   () => dragging = false);
+strip.addEventListener("pointercancel",() => dragging = false);
+
+document.addEventListener("keydown", e => {
+  /* reference panels scroll normally; only C / Esc (clean view) stay live */
+  if(document.body.classList.contains("games-panel") && !["c","escape"].includes(e.key.toLowerCase())) return;
+  if(e.key === "Escape"){ if(document.body.classList.contains("clean")) $("cleanBtn").click(); return; }
+  if(e.key === "ArrowRight" || e.key === "ArrowDown"){ go(index + 1); e.preventDefault(); }
+  else if(e.key === "ArrowLeft" || e.key === "ArrowUp"){ go(index - 1); e.preventDefault(); }
+  else if(e.key === "Home"){ go(0); e.preventDefault(); }
+  else if(e.key === "End"){ go(list.length - 1); e.preventDefault(); }
+  else if(e.key.toLowerCase() === "c"){ $("cleanBtn").click(); }
+});
+
+/* drop an image onto a card to set its cover for this session */
+function enableDrop(card, d){
+  card.addEventListener("dragover", e => { e.preventDefault(); card.classList.add("drop-target"); });
+  card.addEventListener("dragleave", () => card.classList.remove("drop-target"));
+  card.addEventListener("drop", e => {
+    e.preventDefault(); card.classList.remove("drop-target");
+    const file = e.dataTransfer.files[0];
+    if(!file || !file.type.startsWith("image/")) return;
+    COVERS[d.id] = URL.createObjectURL(file);
+    const art = card.querySelector(".art");
+    art.querySelectorAll("img").forEach(n => n.remove());
+    art.insertAdjacentHTML("afterbegin", coverImgs(COVERS[d.id]));
+    art.classList.add("has-cover");
+    watchFit(art);
+  });
+}
+
+/* ============================================================
+   GAMES — Timeline uses the normal rail; the other tabs are
+   reference panels built from GAME_EXTRAS
+   ============================================================ */
+let gameView = "timeline";
+
+const PANELS = {
+  other: () => `
+    <h2>Not on the timeline</h2>
+    <p class="lede">Titles with no story to place: board and puzzle games, educational software, pinball, crossovers, plug-and-play toys and the smaller mobile and browser games, grouped where there were many.</p>
+    <ul class="ref-list">${GAME_EXTRAS.other.map(o =>
+      `<li><strong>${o.title}</strong><span>${o.year} · ${o.platforms} · ${o.type}</span></li>`).join("")}</ul>`,
+  cancelled: () => `
+    <h2>Cancelled</h2>
+    <p class="lede">Announced or known to be in development, then shelved.</p>
+    <ul class="chips">${GAME_EXTRAS.cancelled.map(c =>
+      `<li>${c.title}<span>${c.year}</span></li>`).join("")}</ul>`,
+  notes: () => `
+    <h2>Notes &amp; sources</h2>
+    <ul class="notes-list">
+      <li><b>BBY / ABY</b> — games sit on the same timeline and eras as the films, shows and books.</li>
+      <li><b>Canon vs. Legends</b> — every game released before April 2014 is Legends, including the film retellings and The Clone Wars tie-ins. LEGO games and later arcade retellings are non-canon.</li>
+      <li><b>c.</b> — the placement is approximate or loosely defined. Wookieepedia refused automated requests during research, so these are best mappings — check them before scripting.</li>
+      <li><b>Film retelling</b> — the game plays through a film's events rather than telling its own story.</li>
+      <li><b>Editing</b> — change sw-games.json, then run <code>python wire_games.py</code>. Covers go in covers/ named game-&lt;id&gt;, then run wire_covers.py.</li>
+    </ul>
+    <h3>Sources</h3>
+    <ol class="sources">${GAME_EXTRAS.sources.map(s =>
+      `<li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`).join("")}</ol>`
+};
+
+function setGameView(v){
+  gameView = v;
+  [...$("gameNav").children].forEach(x => x.setAttribute("aria-selected", x.dataset.view === v));
+  const panel = track === "games" && v !== "timeline";
+  document.body.classList.toggle("games-panel", panel);
+  if(panel){
+    $("gamePanel").innerHTML = `<div class="panel-inner">${PANELS[v]()}</div>`;
+    $("gamePanel").scrollTop = 0;
+  }
+}
+
+$("gameNav").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  setGameView(b.dataset.view);
+});
+$("gnTimeline").textContent  = GAME_DATA.length;
+$("gnOther").textContent     = GAME_EXTRAS.other.length;
+$("gnCancelled").textContent = GAME_EXTRAS.cancelled.length;
+
+/* when the page is hosted inside another shell, icon links can land in <body> — browsers only read them in <head> */
+document.head.append(...document.querySelectorAll('body link[rel="icon"], body link[rel="apple-touch-icon"]'));
+
+rebuild();
+</script>
+</body>
+</html>
