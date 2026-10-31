@@ -21,8 +21,9 @@
   --edge:#26313F;
   --bone:#E9E5DA;
   --dim:#7B8899;
+  --soft:#C4C8CC;            /* body copy on reference panels */
 
-  --accent:#3F7FD1;          /* driven by era, set at runtime */
+  --accent:#3F7FD1;         /* driven by era, set at runtime */
   --accent-soft:rgba(63,127,209,.16);
 
   --cardw:260px;
@@ -107,6 +108,28 @@ body::before{
 .ghost-btn:hover{color:var(--bone);border-color:var(--bone)}
 .ghost-btn:focus-visible{outline:2px solid var(--bone);outline-offset:2px}
 
+/* franchise toggle — sits first in the header; the other franchises swap the palette, not the layout */
+.fr-seg{margin-right:6px}
+.fr-seg button{color:var(--bone);font-weight:600}
+/* Per-franchise palettes live in these blocks. Game of Thrones is a light, tan page for now. */
+html[data-fr="got"]{
+  --void:#CDB791;      /* page */
+  --hull:#C2AB82;      /* card fill */
+  --hull-2:#BBA47A;
+  --edge:#9C8560;
+  --bone:#2B2116;      /* ink */
+  --dim:#54452F;
+  --soft:#3A2E1E;
+}
+html[data-fr="got"] .transport{background:linear-gradient(180deg,transparent,rgba(90,70,40,.18))}
+html[data-fr="got"] .hint{color:var(--dim)}
+html[data-fr="got"] .exit-clean{background:rgba(205,183,145,.7)}
+html[data-fr="got"] body::before{
+  background:
+    radial-gradient(120% 70% at 50% 110%, var(--accent-soft), transparent 60%),
+    radial-gradient(80% 50% at 50% -10%, rgba(255,250,235,.35), transparent 70%);
+}
+
 /* ============================================================
    STAGE
    ============================================================ */
@@ -174,6 +197,7 @@ body::before{
   position:absolute;inset:0;
   display:flex;flex-direction:column;justify-content:flex-end;
   padding:18px 16px;
+  color:#E9E5DA;   /* always light: it sits on the dark overlay, whatever the page palette */
   background:
     linear-gradient(180deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.72) 100%),
     linear-gradient(150deg,var(--card-hue) 0%,rgba(0,0,0,0) 62%),
@@ -248,18 +272,18 @@ body::before{
 .chips{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
 .chips li{font-family:var(--f-mono);font-size:12px;border:1px dashed var(--edge);border-radius:2px;padding:7px 10px}
 .chips li span{color:var(--dim);margin-left:6px}
-.notes-list{list-style:none;display:grid;gap:12px;max-width:72ch;font-size:14px;line-height:1.55;color:#C4C8CC}
+.notes-list{list-style:none;display:grid;gap:12px;max-width:72ch;font-size:14px;line-height:1.55;color:var(--soft)}
 .notes-list b{color:var(--bone);font-weight:600}
 .sources{display:grid;gap:6px;padding-left:1.2em;font-size:13px;color:var(--dim)}
 .sources a{color:var(--accent);text-underline-offset:3px}
 
-body:not(.games-panel) .panel{display:none}
-body.games-panel .rail-window,
-body.games-panel .readout,
-body.games-panel .transport,
-body.games-panel .hint,
-body.games-panel #modeSeg{display:none}
-body.games-panel .stage{justify-content:flex-start;padding:0}
+body:not(.ref-panel) .panel{display:none}
+body.ref-panel .rail-window,
+body.ref-panel .readout,
+body.ref-panel .transport,
+body.ref-panel .hint,
+body.ref-panel #modeSeg{display:none}
+body.ref-panel .stage{justify-content:flex-start;padding:0}
 
 .cast{font-size:13px;line-height:1.45;color:var(--bone);opacity:.88;max-width:70ch}
 .cast span{
@@ -438,6 +462,8 @@ body.clean .exit-clean{display:grid;place-items:center}
   .wordmark{font-size:20px}
   .switches{width:100%;gap:8px}
   .seg button,.ghost-btn{padding:10px 10px;letter-spacing:.08em}
+  .fr-seg{flex-basis:100%;margin-right:0}
+  .fr-seg button{flex:1}
   #trackSeg{flex-basis:100%;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--edge)}
   #trackSeg button{border-left:0;background:var(--void)}
   #trackSeg button[aria-pressed="true"]{background:var(--accent)}
@@ -482,12 +508,8 @@ body.clean .exit-clean{display:grid;place-items:center}
 <header class="deck-head">
   <div class="wordmark">Timeline <span>Deck</span></div>
   <div class="switches">
-    <div class="seg" id="trackSeg" role="group" aria-label="Collection">
-      <button data-track="screen"  aria-pressed="true">On screen</button>
-      <button data-track="books"   aria-pressed="false">Canon books</button>
-      <button data-track="legends" aria-pressed="false">Legends &amp; Visions</button>
-      <button data-track="games"   aria-pressed="false">Games</button>
-    </div>
+    <div class="seg fr-seg" id="frSeg" role="group" aria-label="Franchise"></div>
+    <div class="seg" id="trackSeg" role="group" aria-label="Collection"></div>
     <div class="seg" id="modeSeg" role="group" aria-label="Order">
       <button data-mode="timeline" aria-pressed="true">BBY / ABY<span class="long"> order</span></button>
       <button data-mode="release"  aria-pressed="false">Release<span class="long"> order</span></button>
@@ -498,12 +520,7 @@ body.clean .exit-clean{display:grid;place-items:center}
 
 <button class="exit-clean" id="exitClean" aria-label="Exit clean view" title="Exit clean view (Esc)">&#10005;</button>
 
-<nav class="subnav" id="gameNav" role="tablist" aria-label="Games" hidden>
-  <button role="tab" data-view="timeline"  aria-selected="true">Timeline <b id="gnTimeline"></b></button>
-  <button role="tab" data-view="other"     aria-selected="false">Not on the timeline <b id="gnOther"></b></button>
-  <button role="tab" data-view="cancelled" aria-selected="false">Cancelled <b id="gnCancelled"></b></button>
-  <button role="tab" data-view="notes"     aria-selected="false">Notes &amp; sources</button>
-</nav>
+<nav class="subnav" id="subNav" role="tablist" aria-label="Views" hidden></nav>
 
 <main class="stage">
   <div class="rail-window">
@@ -520,7 +537,7 @@ body.clean .exit-clean{display:grid;place-items:center}
     <ul class="systems" id="systems"></ul>
   </div>
 
-  <section class="panel" id="gamePanel"></section>
+  <section class="panel" id="refPanel"></section>
 </main>
 
 <div class="transport">
@@ -739,7 +756,13 @@ const COVERS = {
   "game-lego-complete-saga": "covers/game-lego-complete-saga.webp",
   "game-lego-clone-wars": "covers/game-lego-clone-wars.webp",
   "game-lego-tfa": "covers/game-lego-tfa.webp",
-  "game-lego-skywalker-saga": "covers/game-lego-skywalker-saga.webp"
+  "game-lego-skywalker-saga": "covers/game-lego-skywalker-saga.webp",
+  "house-of-the-dragon": "covers/house-of-the-dragon.webp",
+  "a-knight-of-the-seven-kingdoms": "covers/a-knight-of-the-seven-kingdoms.webp",
+  "game-of-thrones": "covers/game-of-thrones.webp",
+  "fire-and-blood": "covers/fire-and-blood.webp",
+  "the-world-of-ice-and-fire": "covers/the-world-of-ice-and-fire.webp",
+  "the-rise-of-the-dragon": "covers/the-rise-of-the-dragon.webp"
 };
 
 /* ============================================================
@@ -1007,6 +1030,40 @@ const GAME_EXTRAS = {"other": [{"title": "Jedi Arena", "year": "1983", "platform
 DATA.push(...GAME_DATA);
 /* ==== END GAMES ==== */
 
+/* ==== GAME OF THRONES — generated from got-data.json by wire_got.py. Edit the JSON, not this block. ==== */
+const GOT_DATA = [
+  {id:"ten-thousand-ships", track:"screen", medium:"Series", title:"Ten Thousand Ships", t:-700, when:"~700 BC", ry:9999, rel:"TBA", soon:true, status:"In development", note:"Princess Nymeria's flight from the Rhoyne and the founding of Dorne. Martin said in 2024 that playwright Ebony Booth was writing a pilot script; there has been no public news since. Placed roughly 700 years before Aegon's landing.", chars:"Nymeria and the Rhoynar", fr:"got"},
+  {id:"aegons-conquest", track:"screen", medium:"Film", title:"Aegon's Conquest", t:-2, when:"c. 2 BC", ry:2029, rel:"June 1, 2029", soon:true, status:"Announced · Warner Bros. film", note:"Full title Game of Thrones: Aegon's Conquest. A theatrical film, originally developed as an HBO series, with Beau Willimon writing and Owen Harris reported as director. Warner Bros. dated it June 1, 2029 after first listing it for \"2027 and beyond\". No cast announced.", chars:"Aegon I Targaryen, Visenya, Rhaenys", fr:"got"},
+  {id:"nine-voyages", track:"screen", medium:"Animated", title:"Nine Voyages of Corlys Velaryon", t:70, when:"c. 70 AC", ry:9999, rel:"TBA", soon:true, status:"In development", note:"Also known as The Sea Snake. First reported in 2021 as live-action, later moved to animation; Genndy Tartakovsky was reported attached as of January 2026. The AC placement is approximate and inferred from Corlys's early life — HBO has not given a setting year.", chars:"Corlys Velaryon", fr:"got"},
+  {id:"house-of-the-dragon", track:"screen", medium:"Series", title:"House of the Dragon", t:101, when:"101 AC – 130 AC+", ry:2022, rel:"2022–", status:"Seasons 1–3 aired", note:"Season 1 aired in 2022 and spans 101 AC onward with time jumps; season 2 (2024) covers the opening of the Dance of the Dragons, 129–130 AC; season 3 ran eight episodes from June 21 to August 9, 2026. Adapted from Fire & Blood.", chars:"Rhaenyra Targaryen, Alicent Hightower, Daemon Targaryen, Aegon II, Aemond, Corlys Velaryon", fr:"got"},
+  {id:"house-of-the-dragon-s4", track:"screen", medium:"Series", title:"House of the Dragon — Season 4", t:131, when:"~131 AC", ry:2028, rel:"~2028", soon:true, status:"Final season · no date", note:"Confirmed as the final season. Winter Is Coming reports pre-production starting in October 2026 and filming in spring 2027, with a 2028 release expected; HBO has not set a date. Setting inferred from the Dance of the Dragons ending in 131 AC.", fr:"got"},
+  {id:"a-knight-of-the-seven-kingdoms", track:"screen", medium:"Series", title:"A Knight of the Seven Kingdoms", t:209, when:"209 AC", ry:2026, rel:"2026–", status:"Season 1 aired", note:"Six episodes, January 18 – February 22, 2026, adapting The Hedge Knight. Dragons are gone but House Targaryen still rules.", chars:"Ser Duncan the Tall, Egg", fr:"got"},
+  {id:"a-knight-of-the-seven-kingdoms-s2", track:"screen", medium:"Series", title:"A Knight of the Seven Kingdoms — Season 2", t:211, when:"~211 AC", ry:2027, rel:"H1 2027", soon:true, status:"Filmed · no exact date", note:"Adapts The Sworn Sword. Filming has wrapped and the showrunner has promised the first half of 2027. He has also said a season 3 would adapt The Mystery Knight.", chars:"Ser Duncan the Tall, Egg", fr:"got"},
+  {id:"game-of-thrones", track:"screen", medium:"Series", title:"Game of Thrones", t:298, when:"298 AC – c. 305 AC", ry:2011, rel:"2011–2019", status:"Ended 2019", note:"Eight seasons, 73 episodes, April 17, 2011 – May 19, 2019. Adapts A Song of Ice and Fire and runs past the published novels from season 6.", chars:"Ned, Catelyn and Robb Stark, Jon Snow, Daenerys Targaryen, Tyrion and Cersei Lannister, Arya, Sansa and Bran Stark", fr:"got"},
+  {id:"arya-sequel", track:"screen", medium:"Series", title:"Arya Stark Sequel Series", t:306, when:"After 305 AC", ry:9999, rel:"TBA", soon:true, status:"Early development · reported", note:"Reported in January 2026 as a reworked take on the shelved Jon Snow sequel, with Quoc Dang Tran writing and a possible Essos setting. Very early stage and not confirmed by HBO in its own announcement.", chars:"Arya Stark", fr:"got"},
+  {id:"golden-empire", track:"screen", medium:"Animated", title:"The Golden Empire", t:null, when:"Setting not yet placed", ry:9999, rel:"TBA", soon:true, status:"In development", note:"Animated, set in Yi Ti. Martin called it a working title in a 2022 post; nothing public since.", fr:"got"},
+  {id:"fire-and-blood", track:"books", kind:"story", medium:"History", title:"Fire & Blood", author:"George R.R. Martin", t:-2, when:"c. 2 BC – 136 AC", ry:2018, rel:"Nov 2018", note:"Archmaester Gyldayn's in-world history of House Targaryen, from Aegon's Conquest through the regency of Aegon III, and the source of House of the Dragon. Volume Two, Blood & Fire, is planned after The Winds of Winter. The HBO tie-in edition is subtitled The Targaryen Dynasty: The House of the Dragon.", chars:"Aegon I, Jaehaerys I, Viserys I, Rhaenyra, Aegon II, Daemon", fr:"got"},
+  {id:"sons-of-the-dragon", track:"books", kind:"story", medium:"Novella", title:"The Sons of the Dragon", author:"George R.R. Martin", t:37, when:"37 AC – 48 AC", ry:2017, rel:"2017", note:"The reigns of Aenys I and Maegor the Cruel, first published in the anthology The Book of Swords. Later expanded in Fire & Blood.", chars:"Aenys I, Maegor the Cruel, Visenya, Rhaenys", fr:"got"},
+  {id:"rogue-prince", track:"books", kind:"story", medium:"Novella", title:"The Rogue Prince", author:"George R.R. Martin", t:101, when:"c. 101 AC onward", ry:2014, rel:"2014", note:"Viserys I's reign and his brother Daemon, first published in the anthology Rogues as The Rogue Prince, or, A King's Brother. Later expanded in Fire & Blood.", chars:"Viserys I, Daemon Targaryen, Rhaenyra, Alicent Hightower", fr:"got"},
+  {id:"princess-and-the-queen", track:"books", kind:"story", medium:"Novella", title:"The Princess and the Queen", author:"George R.R. Martin", t:129, when:"129 AC – 131 AC", ry:2013, rel:"2013", note:"The Dance of the Dragons — the Blacks and the Greens — first published in the anthology Dangerous Women. Later expanded in Fire & Blood.", chars:"Rhaenyra, Aegon II, Daemon, Alicent, Aemond", fr:"got"},
+  {id:"hedge-knight", track:"books", kind:"story", medium:"Novella", title:"The Hedge Knight", author:"George R.R. Martin", t:209, when:"209 AC", ry:1998, rel:"1998", note:"First Dunk & Egg story, from the anthology Legends, and the basis for A Knight of the Seven Kingdoms season 1. All three Dunk & Egg novellas are collected in A Knight of the Seven Kingdoms (October 6, 2015).", chars:"Ser Duncan the Tall, Egg", fr:"got"},
+  {id:"sworn-sword", track:"books", kind:"story", medium:"Novella", title:"The Sworn Sword", author:"George R.R. Martin", t:211, when:"~211 AC", ry:2003, rel:"2003", note:"Second Dunk & Egg story, from Legends II, and the basis for A Knight of the Seven Kingdoms season 2.", chars:"Ser Duncan the Tall, Egg", fr:"got"},
+  {id:"mystery-knight", track:"books", kind:"story", medium:"Novella", title:"The Mystery Knight", author:"George R.R. Martin", t:212, when:"~212 AC", ry:2010, rel:"2010", note:"Third Dunk & Egg story, from the anthology Warriors. Martin has said more are planned, but not before The Winds of Winter.", chars:"Ser Duncan the Tall, Egg", fr:"got"},
+  {id:"a-game-of-thrones", track:"books", kind:"story", medium:"Novel", title:"A Game of Thrones", author:"George R.R. Martin", t:298, when:"298 AC", ry:1996, rel:"1996", note:"Book one of A Song of Ice and Fire.", chars:"Eddard Stark, Catelyn Stark, Jon Snow, Daenerys Targaryen, Tyrion Lannister, Arya, Sansa and Bran Stark", fr:"got"},
+  {id:"a-clash-of-kings", track:"books", kind:"story", medium:"Novel", title:"A Clash of Kings", author:"George R.R. Martin", t:299, when:"299 AC", ry:1998, rel:"1998", note:"Book two. First published in the UK in 1998, in the US in 1999.", chars:"Tyrion Lannister, Jon Snow, Daenerys Targaryen, Arya, Sansa, Bran and Catelyn Stark, Davos Seaworth, Theon Greyjoy", fr:"got"},
+  {id:"a-storm-of-swords", track:"books", kind:"story", medium:"Novel", title:"A Storm of Swords", author:"George R.R. Martin", t:299.5, when:"299 AC – 300 AC", ry:2000, rel:"2000", note:"Book three.", chars:"Jaime Lannister, Jon Snow, Daenerys Targaryen, Tyrion Lannister, Arya, Sansa and Bran Stark, Samwell Tarly", fr:"got"},
+  {id:"a-feast-for-crows", track:"books", kind:"story", medium:"Novel", title:"A Feast for Crows", author:"George R.R. Martin", t:300, when:"300 AC", ry:2005, rel:"2005", note:"Book four, running alongside A Dance with Dragons.", chars:"Cersei Lannister, Jaime Lannister, Brienne of Tarth, Samwell Tarly, Arya Stark, Arianne Martell", fr:"got"},
+  {id:"a-dance-with-dragons", track:"books", kind:"story", medium:"Novel", title:"A Dance with Dragons", author:"George R.R. Martin", t:300.01, when:"300 AC", ry:2011, rel:"2011", note:"Book five, running alongside A Feast for Crows and continuing past it.", chars:"Daenerys Targaryen, Jon Snow, Tyrion Lannister, Theon Greyjoy, Bran Stark, Davos Seaworth", fr:"got"},
+  {id:"the-winds-of-winter", track:"books", kind:"story", medium:"Novel", title:"The Winds of Winter", author:"George R.R. Martin", t:300.5, when:"300 AC onward", ry:9999, rel:"TBA", soon:true, noread:true, status:"No release date", note:"Book six. Martin has not announced a completion or publication date, and Bantam publicly denied a rumored 2026 release.", fr:"got"},
+  {id:"a-dream-of-spring", track:"books", kind:"story", medium:"Novel", title:"A Dream of Spring", author:"George R.R. Martin", t:301, when:"301 AC onward", ry:9999, rel:"TBA", soon:true, noread:true, status:"Unwritten", note:"Book seven, the planned final novel.", fr:"got"},
+  {id:"the-world-of-ice-and-fire", track:"books", kind:"world", medium:"Lore book", title:"The World of Ice & Fire", author:"George R.R. Martin, Elio M. García Jr. & Linda Antonsson", t:-12000, when:"c. 12,000 BC – 298 AC", ry:2014, rel:"Oct 2014", note:"The in-world history of Westeros from the Dawn Age to just before the novels, with the lands beyond: Valyria, the Rhoynar, the Free Cities and Essos.", fr:"got"},
+  {id:"the-rise-of-the-dragon", track:"books", kind:"world", medium:"Lore book", title:"The Rise of the Dragon", author:"Elio M. García Jr., Linda Antonsson & George R.R. Martin", t:-2, when:"From the Conquest (c. 2 BC)", ry:2022, rel:"Oct 2022", note:"An illustrated history of the Targaryen dynasty with more than 180 new illustrations, published as Volume One.", fr:"got"},
+  {id:"the-lands-of-ice-and-fire", track:"books", kind:"world", medium:"Atlas", title:"The Lands of Ice and Fire", author:"George R.R. Martin, maps by Jonathan Roberts", t:null, when:"Maps of the novels' world", ry:2012, rel:"2012", note:"A set of maps of Westeros, Essos and the lands beyond. It sits outside the timeline.", fr:"got"}
+];
+DATA.push(...GOT_DATA);
+const GOT_EXTRAS = {"shelved": [{"title": "Snow", "year": "2022", "note": "Jon Snow sequel; shelved, as Kit Harington has confirmed"}, {"title": "Blood Moon", "year": "2019", "note": "Long Night prequel; pilot filmed, then cancelled"}, {"title": "Flea Bottom", "year": "—", "note": "Live-action King's Landing slums series; shelved"}], "also": [{"title": "Game of Thrones: The Mad King (stage)", "when": "Stratford 2026 · London 2027", "note": "Royal Shakespeare Company play set around the Harrenhal tourney and Robert's Rebellion. The Stratford run ended September 5, 2026; a London run is confirmed for 2027, with venue and dates not yet announced."}, {"title": "Unnamed sequels", "when": "Not identified", "note": "In 2025 Martin said HBO had five or six series in the works, including some sequels. None have been named."}, {"title": "Unnamed animated series", "when": "Not identified", "note": "In 2024 Martin said four animated projects were in development. Only two are identified: Nine Voyages and The Golden Empire."}], "sources": [{"label": "Winter Is Coming — status of every GoT spinoff (Sept 2026)", "url": "https://winteriscoming.net/status-every-game-of-thrones-spinoff-development-updated-2026"}, {"label": "Variety — House of the Dragon season 3 release date", "url": "https://variety.com/2026/tv/news/house-of-the-dragon-season-3-release-date-hbo-1236731400/"}, {"label": "Deadline — House of the Dragon season 3 release schedule", "url": "https://deadline.com/2026/06/house-of-the-dragon-season-3-release-schedule-new-episodes-1236966652/"}, {"label": "Screen Rant — A Knight of the Seven Kingdoms season 2 timeline", "url": "https://screenrant.com/a-knight-of-the-seven-kingdoms-early-2027-release-timeline-ira-parker/"}, {"label": "The Hollywood Reporter — Aegon's Conquest dated 2029", "url": "https://www.hollywoodreporter.com/movies/movie-news/game-of-thrones-movie-aegons-conquest-warner-bros-release-1236714525/"}, {"label": "Gold Derby — Aegon's Conquest details", "url": "https://www.goldderby.com/film/2026/game-of-thrones-aegons-conquest-targaryen-beau-willimon/"}, {"label": "Hypebeast — Arya Stark sequel report", "url": "https://hypebeast.com/2026/1/hbo-game-of-thrones-arya-stark-maisie-williams-sequel-pivot-reports"}, {"label": "London Box Office — The Mad King London transfer", "url": "https://www.londonboxoffice.co.uk/news/post/game-of-thrones-the-mad-king-to-transfer-to-london-in-2027"}, {"label": "IBTimes — Bantam denies Winds of Winter 2026 rumor", "url": "https://www.ibtimes.co.uk/winds-winter-2026-release-rumors-debunked-1791619"}, {"label": "Wikipedia — Tales of Dunk and Egg", "url": "https://en.wikipedia.org/wiki/Tales_of_Dunk_and_Egg"}, {"label": "Wikipedia — Fire & Blood", "url": "https://en.wikipedia.org/wiki/Fire_%26_Blood_(book)"}, {"label": "Wikipedia — The World of Ice & Fire", "url": "https://en.wikipedia.org/wiki/The_World_of_Ice_%26_Fire"}, {"label": "Wikipedia — A Song of Ice and Fire", "url": "https://en.wikipedia.org/wiki/A_Song_of_Ice_and_Fire"}]};
+/* ==== END GAME OF THRONES ==== */
+
 /* ============================================================
    ERAS — the accent colour is derived from where you are standing
    ============================================================ */
@@ -1023,29 +1080,56 @@ const ERAS = [
 ];
 const NO_ERA = {name:"Outside the timeline", hue:"#9AA4B2"};
 
+/* Game of Thrones: t is in AC (After Aegon's Conquest), BC negative */
+const GOT_ERAS = [
+  /* darker than the Star Wars hues: they have to read as text on the tan page */
+  {max:-6000,  name:"Dawn Age & Age of Heroes", hue:"#3E6A94"},
+  {max:-114,   name:"Valyria & the Rhoynar",    hue:"#6B3FA0"},
+  {max:1,      name:"Doom & Conquest",          hue:"#A8570C"},
+  {max:90,     name:"The Dragon Kings",         hue:"#6E5200"},
+  {max:132,    name:"Dance of the Dragons",     hue:"#A3221A"},
+  {max:200,    name:"After the Dance",         hue:"#4F5D6B"},
+  {max:260,    name:"Blackfyre Rebellions",     hue:"#2F6B45"},
+  {max:298,    name:"The Mad King",             hue:"#3F7A12"},
+  {max:305.5,  name:"Game of Thrones",          hue:"#1F5C99"},
+  {max:Infinity, name:"After the Throne",       hue:"#3A4A5E"}
+];
+
 function eraOf(item){
-  if(item.t === null) return NO_ERA;
-  return ERAS.find(e => item.t < e.max) || ERAS[ERAS.length-1];
+  const F = FRANCHISES[fr];
+  if(item.t === null) return F.noEra;
+  return F.eras.find(e => item.t < e.max) || F.eras[F.eras.length-1];
 }
 
-const GLYPH = {Film:"◈ FILM", Films:"◈ FILMS", Series:"▤ SERIES", Novel:"▣ NOVEL", Legends:"▣ LEGENDS", Anthology:"▤ SHORTS", Game:"▦ GAME"};
+const GLYPH = {Film:"◈ FILM", Films:"◈ FILMS", Series:"▤ SERIES", Novel:"▣ NOVEL", Legends:"▣ LEGENDS", Anthology:"▤ SHORTS", Game:"▦ GAME",
+  Animated:"▤ ANIMATED", Novella:"▣ NOVELLA", History:"▣ HISTORY", "Lore book":"▣ LORE", Atlas:"▣ ATLAS"};
 
 /* ============================================================
    STATE
    ============================================================ */
+let fr    = "sw";            /* franchise key — see FRANCHISES below */
 let track = "screen";
 let mode  = "timeline";
 let index = 0;
 let list  = [];
+let subView = null;          /* active tab of the current track's sub-nav, if it has one */
 
 const $ = id => document.getElementById(id);
 const rail = $("rail"), strip = $("strip");
 
-/* signed log keeps 25,000 BBY and 9 ABY on the same strip */
-const compress = t => Math.sign(t) * Math.log10(1 + Math.abs(t));
+/* entries without an fr belong to the original Star Wars deck */
+const frOf = d => d.fr || "sw";
+
+/* a book can be ticked off as read unless it is flagged noread (not out yet) */
+const tracked = d => d.track === "books" && !d.noread;
+
+/* the franchise's own scale keeps its very old and very recent titles on one strip */
+const compress = t => FRANCHISES[fr].compress(t);
 
 function sortList(){
-  const arr = DATA.filter(d => d.track === track);
+  let arr = DATA.filter(d => frOf(d) === fr && d.track === track);
+  const sub = curSub();
+  if(sub && sub.filter) arr = arr.filter(sub.filter);
   arr.sort((a,b) => mode === "release"
     ? (a.ry - b.ry) || (a.t ?? 1e9) - (b.t ?? 1e9)
     : ((a.t ?? 1e9) - (b.t ?? 1e9)) || (a.ry - b.ry));
@@ -1093,7 +1177,7 @@ function buildRail(){
   list.forEach((d,i) => {
     const era = eraOf(d);
     const card = document.createElement("div");
-    card.className = "card" + (d.track === "books" && !isRead(d.id) ? " unread" : "");
+    card.className = "card" + (tracked(d) && !isRead(d.id) ? " unread" : "");
     card.style.setProperty("--card-hue", era.hue);
     card.dataset.i = i;
     const src = COVERS[d.id];
@@ -1164,7 +1248,8 @@ function update(animateReadout = true){
     ${d.author ? `<span>${d.author}</span><span class="sep"></span>` : ""}
     <span>Released ${d.rel}</span>
     ${d.soon ? `<span class="flag">Upcoming</span>` : ""}
-    ${d.cont ? `<span class="flag quiet">${d.cont}</span>` : ""}
+    ${d.status ? `<span class="flag quiet">${d.status}</span>` : ""}
+    ${d.cont ?`<span class="flag quiet">${d.cont}</span>` : ""}
     ${d.kind === "retelling" ? `<span class="flag quiet">Film retelling</span>` : ""}
     ${d.kind === "multiplayer" ? `<span class="flag quiet">Multiplayer</span>` : ""}
     ${d.offline ? `<span class="flag off">Offline · ${d.offline}</span>` : ""}`;
@@ -1172,8 +1257,8 @@ function update(animateReadout = true){
   $("cast").innerHTML = d.chars ? `<span>Cast</span>${d.chars}` : "";
   $("systems").innerHTML = d.sys ? d.sys.map(s => `<li>${s}</li>`).join("") : "";
 
-  $("readWrap").hidden = d.track !== "books";
-  if(d.track === "books") $("readInput").checked = isRead(d.id);
+  $("readWrap").hidden = !tracked(d);
+  if(tracked(d)) $("readInput").checked = isRead(d.id);
   $("counter").innerHTML = `<b>${String(index+1).padStart(2,"0")}</b> / ${String(list.length).padStart(2,"0")}`;
 
   $("prevBtn").disabled = index === 0;
@@ -1228,13 +1313,14 @@ function go(i){
 $("prevBtn").addEventListener("click", () => go(index - 1));
 $("nextBtn").addEventListener("click", () => go(index + 1));
 
+$("frSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b || b.dataset.fr === fr) return;
+  setFranchise(b.dataset.fr);
+});
+
 $("trackSeg").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
-  track = b.dataset.track; index = 0;
-  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", x === b));
-  $("gameNav").hidden = track !== "games";
-  setGameView("timeline");
-  rebuild();
+  setTrack(b.dataset.track);
 });
 
 $("modeSeg").addEventListener("click", e => {
@@ -1248,7 +1334,7 @@ $("modeSeg").addEventListener("click", e => {
 
 $("readInput").addEventListener("change", e => {
   const d = list[index];
-  if(!d || d.track !== "books") return;
+  if(!d || !tracked(d)) return;
   READS[d.id] = e.target.checked;
   const card = rail.children[index];
   if(card) card.classList.toggle("unread", !e.target.checked);
@@ -1302,7 +1388,7 @@ strip.addEventListener("pointercancel",() => dragging = false);
 
 document.addEventListener("keydown", e => {
   /* reference panels scroll normally; only C / Esc (clean view) stay live */
-  if(document.body.classList.contains("games-panel") && !["c","escape"].includes(e.key.toLowerCase())) return;
+  if(document.body.classList.contains("ref-panel") && !["c","escape"].includes(e.key.toLowerCase())) return;
   if(e.key === "Escape"){ if(document.body.classList.contains("clean")) $("cleanBtn").click(); return; }
   if(e.key === "ArrowRight" || e.key === "ArrowDown"){ go(index + 1); e.preventDefault(); }
   else if(e.key === "ArrowLeft" || e.key === "ArrowUp"){ go(index - 1); e.preventDefault(); }
@@ -1329,11 +1415,9 @@ function enableDrop(card, d){
 }
 
 /* ============================================================
-   GAMES — Timeline uses the normal rail; the other tabs are
-   reference panels built from GAME_EXTRAS
+   REFERENCE PANELS — a sub-nav tab either filters the rail or
+   swaps it for one of these. Games and Game of Thrones both use them.
    ============================================================ */
-let gameView = "timeline";
-
 const PANELS = {
   other: () => `
     <h2>Not on the timeline</h2>
@@ -1359,29 +1443,156 @@ const PANELS = {
       `<li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`).join("")}</ol>`
 };
 
-function setGameView(v){
-  gameView = v;
-  [...$("gameNav").children].forEach(x => x.setAttribute("aria-selected", x.dataset.view === v));
-  const panel = track === "games" && v !== "timeline";
-  document.body.classList.toggle("games-panel", panel);
+const GOT_PANELS = {
+  shelved: () => `
+    <h2>Shelved</h2>
+    <p class="lede">Announced or filmed, then put on ice. Nothing here is expected to arrive.</p>
+    <ul class="ref-list">${GOT_EXTRAS.shelved.map(s =>
+      `<li><strong>${s.title}</strong><span>${s.year} · ${s.note}</span></li>`).join("")}</ul>`,
+  also: () => `
+    <h2>Also announced</h2>
+    <p class="lede">Westeros projects that are not on the screen timeline: a stage play, and sequels or animated series Martin has mentioned without naming.</p>
+    <ul class="ref-list">${GOT_EXTRAS.also.map(a =>
+      `<li><strong>${a.title}</strong><span>${a.when} · ${a.note}</span></li>`).join("")}</ul>`,
+  notes: () => `
+    <h2>Notes &amp; sources</h2>
+    <ul class="notes-list">
+      <li><b>AC / BC</b> — years count from Aegon's Conquest: AC after it, BC before. A Game of Thrones opens in 298 AC.</li>
+      <li><b>Screen vs. books</b> — each show is filed at the in-world date of what it adapts. House of the Dragon and A Knight of the Seven Kingdoms change plenty of the source, and Game of Thrones ran past the published novels from season 6.</li>
+      <li><b>Books</b> — three tabs: all books, story (the novels, the novellas and the narrative history Fire &amp; Blood) and world-building (lore books and the atlas). Move a title between the two by changing its kind in got-data.json.</li>
+      <li><b>~ and c.</b> — the placement is approximate. A Wiki of Ice and Fire refused automated requests during research, so several in-world years (the Dunk &amp; Egg years, the end of Fire &amp; Blood, the span of The Rogue Prince) come from the commonly cited timeline rather than a page I could open. Check them before scripting.</li>
+      <li><b>Read tracking</b> — books start unread and dimmed. Tick "I've read this" to light one up; the ticks live in this browser only.</li>
+      <li><b>Not included</b> — graphic-novel adaptations, art books, video games and merchandise.</li>
+      <li><b>Editing</b> — change got-data.json, then run <code>python wire_got.py</code>. Covers go in covers/ named by the title's id, then run wire_covers.py.</li>
+    </ul>
+    <h3>Sources</h3>
+    <ol class="sources">${GOT_EXTRAS.sources.map(s =>
+      `<li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`).join("")}</ol>`
+};
+
+/* ============================================================
+   FRANCHISES — each brings its own tracks, eras, scale and sub-navs.
+   Adding one (Marvel next): put its titles in DATA with fr:"<key>",
+   define its eras, and add an entry here.
+   subnavs[track] = tabs; the first is the plain rail. A tab with a
+   filter narrows the rail; a tab with a panel replaces it.
+   ============================================================ */
+const gotCount = (track, f) => () => DATA.filter(d => frOf(d) === "got" && d.track === track && (!f || f(d))).length;
+
+const FRANCHISES = {
+  sw: {
+    name: "Star Wars", title: "Star Wars Timeline Deck", order: "BBY / ABY",
+    eras: ERAS, noEra: NO_ERA,
+    /* signed log keeps 25,000 BBY and 9 ABY on the same strip */
+    compress: t => Math.sign(t) * Math.log10(1 + Math.abs(t)),
+    tracks: [
+      {id:"screen",  label:"On screen"},
+      {id:"books",   label:"Canon books"},
+      {id:"legends", label:"Legends &amp; Visions"},
+      {id:"games",   label:"Games"}
+    ],
+    subnavs: {
+      games: [
+        {view:"timeline",  label:"Timeline",            count:() => GAME_DATA.length},
+        {view:"other",     label:"Not on the timeline", count:() => GAME_EXTRAS.other.length,     panel:PANELS.other},
+        {view:"cancelled", label:"Cancelled",           count:() => GAME_EXTRAS.cancelled.length, panel:PANELS.cancelled},
+        {view:"notes",     label:"Notes &amp; sources", panel:PANELS.notes}
+      ]
+    }
+  },
+  got: {
+    name: "Game of Thrones", title: "Game of Thrones Timeline Deck", order: "AC / BC",
+    eras: GOT_ERAS, noEra: NO_ERA,
+    /* AC is dense, BC is vast: linear after the Conquest, log before it */
+    compress: t => t >= 0 ? t / 100 : -Math.log10(1 + Math.abs(t) / 100),
+    tracks: [
+      {id:"screen", label:"On screen"},
+      {id:"books",  label:"Books"}
+    ],
+    subnavs: {
+      screen: [
+        {view:"timeline", label:"Timeline",           count:gotCount("screen")},
+        {view:"shelved",  label:"Shelved",            count:() => GOT_EXTRAS.shelved.length, panel:GOT_PANELS.shelved},
+        {view:"also",     label:"Also announced",     count:() => GOT_EXTRAS.also.length,    panel:GOT_PANELS.also},
+        {view:"notes",    label:"Notes &amp; sources", panel:GOT_PANELS.notes}
+      ],
+      books: [
+        {view:"all",   label:"All books",      count:gotCount("books")},
+        {view:"story", label:"Story",          count:gotCount("books", d => d.kind === "story"), filter:d => d.kind === "story"},
+        {view:"world", label:"World-building", count:gotCount("books", d => d.kind === "world"), filter:d => d.kind === "world"},
+        {view:"notes", label:"Notes &amp; sources", panel:GOT_PANELS.notes}
+      ]
+    }
+  }
+};
+
+const navFor = () => FRANCHISES[fr].subnavs[track] || null;
+function curSub(){
+  const nav = navFor();
+  return nav ? (nav.find(n => n.view === subView) || nav[0]) : null;
+}
+
+function buildSubnav(){
+  const nav = navFor(), el = $("subNav");
+  el.hidden = !nav;
+  el.setAttribute("aria-label", FRANCHISES[fr].name + " views");
+  el.innerHTML = nav ? nav.map(n =>
+    `<button role="tab" data-view="${n.view}" aria-selected="${n === curSub()}">${n.label}${n.count ? ` <b>${n.count()}</b>` : ""}</button>`).join("") : "";
+}
+
+/* show the rail, or the reference panel when the active tab has one */
+function showView(){
+  const sub = curSub();
+  [...$("subNav").children].forEach(x => x.setAttribute("aria-selected", !!sub && x.dataset.view === sub.view));
+  const panel = !!(sub && sub.panel);
+  document.body.classList.toggle("ref-panel", panel);
   if(panel){
-    $("gamePanel").innerHTML = `<div class="panel-inner">${PANELS[v]()}</div>`;
-    $("gamePanel").scrollTop = 0;
+    $("refPanel").innerHTML = `<div class="panel-inner">${sub.panel()}</div>`;
+    $("refPanel").scrollTop = 0;
   }
 }
 
-$("gameNav").addEventListener("click", e => {
+function setTrack(id){
+  track = id; index = 0; subView = null;
+  [...$("trackSeg").children].forEach(x => x.setAttribute("aria-pressed", x.dataset.track === id));
+  buildSubnav(); showView(); rebuild();
+}
+
+function setFranchise(key){
+  if(!FRANCHISES[key]) key = "sw";
+  fr = key;
+  const F = FRANCHISES[key];
+  document.documentElement.dataset.fr = key;
+  document.title = F.title;
+  $("frSeg").innerHTML = Object.entries(FRANCHISES).map(([k, f]) =>
+    `<button data-fr="${k}" aria-pressed="${k === key}">${f.name}</button>`).join("");
+  $("trackSeg").innerHTML = F.tracks.map(t =>
+    `<button data-track="${t.id}" aria-pressed="false">${t.label}</button>`).join("");
+  $("modeSeg").children[0].innerHTML = `${F.order}<span class="long"> order</span>`;
+  /* the hash makes a franchise linkable: …/#got */
+  try{ history.replaceState(null, "", key === "sw" ? location.pathname + location.search : "#" + key); }catch(e){}
+  setTrack(F.tracks[0].id);
+}
+
+$("subNav").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
-  setGameView(b.dataset.view);
+  const sub = curSub();
+  if(sub && b.dataset.view === sub.view) return;
+  const keep = list[index] ? list[index].id : null;
+  subView = b.dataset.view;
+  showView();
+  if(!curSub().panel) rebuild(keep);
 });
-$("gnTimeline").textContent  = GAME_DATA.length;
-$("gnOther").textContent     = GAME_EXTRAS.other.length;
-$("gnCancelled").textContent = GAME_EXTRAS.cancelled.length;
+
+window.addEventListener("hashchange", () => {
+  const key = location.hash.slice(1) || "sw";
+  if(FRANCHISES[key] && key !== fr) setFranchise(key);
+});
 
 /* when the page is hosted inside another shell, icon links can land in <body> — browsers only read them in <head> */
 document.head.append(...document.querySelectorAll('body link[rel="icon"], body link[rel="apple-touch-icon"]'));
 
-rebuild();
+setFranchise(FRANCHISES[location.hash.slice(1)] ? location.hash.slice(1) : "sw");
 </script>
 </body>
 </html>
