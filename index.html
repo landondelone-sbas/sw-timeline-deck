@@ -129,6 +129,15 @@ html[data-fr="got"] body::before{
     radial-gradient(120% 70% at 50% 110%, var(--accent-soft), transparent 60%),
     radial-gradient(80% 50% at 50% -10%, rgba(255,250,235,.35), transparent 70%);
 }
+/* Marvel: a dark, red-tinged placeholder until its backgrounds are chosen */
+html[data-fr="marvel"]{
+  --void:#0F0B0C;
+  --hull:#1A1315;
+  --hull-2:#221A1D;
+  --edge:#3A2B30;
+  --bone:#F0E9E4;
+  --dim:#9A8A8F;
+}
 
 /* ============================================================
    STAGE
@@ -510,10 +519,7 @@ body.clean .exit-clean{display:grid;place-items:center}
   <div class="switches">
     <div class="seg fr-seg" id="frSeg" role="group" aria-label="Franchise"></div>
     <div class="seg" id="trackSeg" role="group" aria-label="Collection"></div>
-    <div class="seg" id="modeSeg" role="group" aria-label="Order">
-      <button data-mode="timeline" aria-pressed="true">BBY / ABY<span class="long"> order</span></button>
-      <button data-mode="release"  aria-pressed="false">Release<span class="long"> order</span></button>
-    </div>
+    <div class="seg" id="modeSeg" role="group" aria-label="Order"></div>
     <button class="ghost-btn" id="cleanBtn" aria-pressed="false">Clean view</button>
   </div>
 </header>
@@ -762,7 +768,87 @@ const COVERS = {
   "game-of-thrones": "covers/game-of-thrones.webp",
   "fire-and-blood": "covers/fire-and-blood.webp",
   "the-world-of-ice-and-fire": "covers/the-world-of-ice-and-fire.webp",
-  "the-rise-of-the-dragon": "covers/the-rise-of-the-dragon.webp"
+  "the-rise-of-the-dragon": "covers/the-rise-of-the-dragon.webp",
+  "eyes-of-wakanda": "covers/eyes-of-wakanda.webp",
+  "captain-america-the-first-avenger": "covers/captain-america-the-first-avenger.webp",
+  "agent-carter-one-shot": "covers/agent-carter-one-shot.webp",
+  "agent-carter-tv": "covers/agent-carter-tv.webp",
+  "captain-marvel": "covers/captain-marvel.webp",
+  "iron-man": "covers/iron-man.webp",
+  "iron-man-2": "covers/iron-man-2.webp",
+  "the-incredible-hulk": "covers/the-incredible-hulk.webp",
+  "thor": "covers/thor.webp",
+  "the-avengers": "covers/the-avengers.webp",
+  "iron-man-3": "covers/iron-man-3.webp",
+  "thor-the-dark-world": "covers/thor-the-dark-world.webp",
+  "agents-of-shield": "covers/agents-of-shield.webp",
+  "captain-america-the-winter-soldier": "covers/captain-america-the-winter-soldier.webp",
+  "guardians-of-the-galaxy": "covers/guardians-of-the-galaxy.webp",
+  "guardians-of-the-galaxy-vol-2": "covers/guardians-of-the-galaxy-vol-2.webp",
+  "i-am-groot-s1": "covers/i-am-groot-s1.webp",
+  "i-am-groot-s2": "covers/i-am-groot-s2.webp",
+  "daredevil-netflix": "covers/daredevil-netflix.webp",
+  "jessica-jones": "covers/jessica-jones.webp",
+  "avengers-age-of-ultron": "covers/avengers-age-of-ultron.webp",
+  "ant-man": "covers/ant-man.webp",
+  "luke-cage": "covers/luke-cage.webp",
+  "captain-america-civil-war": "covers/captain-america-civil-war.webp",
+  "black-widow": "covers/black-widow.webp",
+  "black-panther": "covers/black-panther.webp",
+  "spider-man-homecoming": "covers/spider-man-homecoming.webp",
+  "iron-fist-netflix": "covers/iron-fist-netflix.webp",
+  "the-defenders": "covers/the-defenders.webp",
+  "doctor-strange": "covers/doctor-strange.webp",
+  "thor-ragnarok": "covers/thor-ragnarok.webp",
+  "ant-man-and-the-wasp": "covers/ant-man-and-the-wasp.webp",
+  "avengers-infinity-war": "covers/avengers-infinity-war.webp",
+  "avengers-endgame": "covers/avengers-endgame.webp",
+  "loki-s1": "covers/loki-s1.webp",
+  "loki-s2": "covers/loki-s2.webp",
+  "wandavision": "covers/wandavision.webp",
+  "the-falcon-and-the-winter-soldier": "covers/the-falcon-and-the-winter-soldier.webp",
+  "shang-chi": "covers/shang-chi.webp",
+  "spider-man-far-from-home": "covers/spider-man-far-from-home.webp",
+  "eternals": "covers/eternals.webp",
+  "spider-man-no-way-home": "covers/spider-man-no-way-home.webp",
+  "doctor-strange-multiverse-of-madness": "covers/doctor-strange-multiverse-of-madness.webp",
+  "hawkeye": "covers/hawkeye.webp",
+  "black-panther-wakanda-forever": "covers/black-panther-wakanda-forever.webp",
+  "echo": "covers/echo.webp",
+  "she-hulk": "covers/she-hulk.webp",
+  "ms-marvel": "covers/ms-marvel.webp",
+  "thor-love-and-thunder": "covers/thor-love-and-thunder.webp",
+  "werewolf-by-night": "covers/werewolf-by-night.webp",
+  "guardians-holiday-special": "covers/guardians-holiday-special.webp",
+  "ant-man-quantumania": "covers/ant-man-quantumania.webp",
+  "guardians-of-the-galaxy-vol-3": "covers/guardians-of-the-galaxy-vol-3.webp",
+  "secret-invasion": "covers/secret-invasion.webp",
+  "the-marvels": "covers/the-marvels.webp",
+  "deadpool-and-wolverine": "covers/deadpool-and-wolverine.webp",
+  "agatha-all-along": "covers/agatha-all-along.webp",
+  "daredevil-born-again-s1": "covers/daredevil-born-again-s1.webp",
+  "captain-america-brave-new-world": "covers/captain-america-brave-new-world.webp",
+  "thunderbolts": "covers/thunderbolts.webp",
+  "fantastic-four-first-steps": "covers/fantastic-four-first-steps.webp",
+  "daredevil-born-again-s2": "covers/daredevil-born-again-s2.webp",
+  "punisher-one-last-kill": "covers/punisher-one-last-kill.webp",
+  "spider-man-brand-new-day": "covers/spider-man-brand-new-day.webp",
+  "visionquest": "covers/visionquest.webp",
+  "avengers-doomsday": "covers/avengers-doomsday.webp",
+  "what-if-s1": "covers/what-if-s1.webp",
+  "what-if-s2": "covers/what-if-s2.webp",
+  "what-if-s3": "covers/what-if-s3.webp",
+  "marvel-zombies": "covers/marvel-zombies.webp",
+  "x-men-97-s2": "covers/x-men-97-s2.webp",
+  "x-men-2000": "covers/x-men-2000.webp",
+  "x2": "covers/x2.webp",
+  "x-men-the-last-stand": "covers/x-men-the-last-stand.webp",
+  "x-men-origins-wolverine": "covers/x-men-origins-wolverine.webp",
+  "x-men-first-class": "covers/x-men-first-class.webp",
+  "the-wolverine": "covers/the-wolverine.webp",
+  "x-men-days-of-future-past": "covers/x-men-days-of-future-past.webp",
+  "x-men-apocalypse": "covers/x-men-apocalypse.webp",
+  "logan": "covers/logan.webp"
 };
 
 /* ============================================================
@@ -1064,6 +1150,262 @@ DATA.push(...GOT_DATA);
 const GOT_EXTRAS = {"shelved": [{"title": "Snow", "year": "2022", "note": "Jon Snow sequel; shelved, as Kit Harington has confirmed"}, {"title": "Blood Moon", "year": "2019", "note": "Long Night prequel; pilot filmed, then cancelled"}, {"title": "Flea Bottom", "year": "—", "note": "Live-action King's Landing slums series; shelved"}], "also": [{"title": "Game of Thrones: The Mad King (stage)", "when": "Stratford 2026 · London 2027", "note": "Royal Shakespeare Company play set around the Harrenhal tourney and Robert's Rebellion. The Stratford run ended September 5, 2026; a London run is confirmed for 2027, with venue and dates not yet announced."}, {"title": "Unnamed sequels", "when": "Not identified", "note": "In 2025 Martin said HBO had five or six series in the works, including some sequels. None have been named."}, {"title": "Unnamed animated series", "when": "Not identified", "note": "In 2024 Martin said four animated projects were in development. Only two are identified: Nine Voyages and The Golden Empire."}], "sources": [{"label": "Winter Is Coming — status of every GoT spinoff (Sept 2026)", "url": "https://winteriscoming.net/status-every-game-of-thrones-spinoff-development-updated-2026"}, {"label": "Variety — House of the Dragon season 3 release date", "url": "https://variety.com/2026/tv/news/house-of-the-dragon-season-3-release-date-hbo-1236731400/"}, {"label": "Deadline — House of the Dragon season 3 release schedule", "url": "https://deadline.com/2026/06/house-of-the-dragon-season-3-release-schedule-new-episodes-1236966652/"}, {"label": "Screen Rant — A Knight of the Seven Kingdoms season 2 timeline", "url": "https://screenrant.com/a-knight-of-the-seven-kingdoms-early-2027-release-timeline-ira-parker/"}, {"label": "The Hollywood Reporter — Aegon's Conquest dated 2029", "url": "https://www.hollywoodreporter.com/movies/movie-news/game-of-thrones-movie-aegons-conquest-warner-bros-release-1236714525/"}, {"label": "Gold Derby — Aegon's Conquest details", "url": "https://www.goldderby.com/film/2026/game-of-thrones-aegons-conquest-targaryen-beau-willimon/"}, {"label": "Hypebeast — Arya Stark sequel report", "url": "https://hypebeast.com/2026/1/hbo-game-of-thrones-arya-stark-maisie-williams-sequel-pivot-reports"}, {"label": "London Box Office — The Mad King London transfer", "url": "https://www.londonboxoffice.co.uk/news/post/game-of-thrones-the-mad-king-to-transfer-to-london-in-2027"}, {"label": "IBTimes — Bantam denies Winds of Winter 2026 rumor", "url": "https://www.ibtimes.co.uk/winds-winter-2026-release-rumors-debunked-1791619"}, {"label": "Wikipedia — Tales of Dunk and Egg", "url": "https://en.wikipedia.org/wiki/Tales_of_Dunk_and_Egg"}, {"label": "Wikipedia — Fire & Blood", "url": "https://en.wikipedia.org/wiki/Fire_%26_Blood_(book)"}, {"label": "Wikipedia — The World of Ice & Fire", "url": "https://en.wikipedia.org/wiki/The_World_of_Ice_%26_Fire"}, {"label": "Wikipedia — A Song of Ice and Fire", "url": "https://en.wikipedia.org/wiki/A_Song_of_Ice_and_Fire"}]};
 /* ==== END GAME OF THRONES ==== */
 
+/* ==== MARVEL — generated from marvel-data.json and marvel-other.json by wire_marvel.py. Edit the JSON, not this block. ==== */
+const MARVEL_DATA = [
+  {id:"eyes-of-wakanda", track:"mcu", medium:"Animated", title:"Eyes of Wakanda", ph:6, t:-1260, when:"1260 BC – 1896", ry:2025, rn:2025.5833, rel:"Aug 1, 2025", note:"Four episodes across Wakanda's history. Disney+ lists it first in its MCU timeline order.", fr:"marvel"},
+  {id:"captain-america-the-first-avenger", track:"mcu", medium:"Film", title:"Captain America: The First Avenger", ph:1, t:1943, when:"1942 – 1945", ry:2011, rn:2011.5565, rel:"Jul 22, 2011", fr:"marvel"},
+  {id:"agent-carter-one-shot", track:"mcu", medium:"Short", title:"Agent Carter (One-Shot)", ph:2, t:1946, when:"1946", ry:2013, rn:2013.7043, rel:"Sep 2013", note:"Marvel One-Shot. Month of release approximate.", fr:"marvel"},
+  {id:"agent-carter-tv", track:"mcu", medium:"Series", title:"Agent Carter", ph:8, lane:"mtv", t:1946.5, when:"1946 – 1947", ry:2015, rn:2015.0134, rel:"2015–2016", status:"Ended 2016", note:"Marvel Television (ABC). Not on Disney+'s official timeline; placed after the one-shot.", fr:"marvel"},
+  {id:"captain-marvel", track:"mcu", medium:"Film", title:"Captain Marvel", ph:3, t:1995, when:"1995", ry:2019, rn:2019.1855, rel:"Mar 8, 2019", fr:"marvel"},
+  {id:"iron-man", track:"mcu", medium:"Film", title:"Iron Man", ph:1, t:2010, when:"2010", ry:2008, rn:2008.336, rel:"May 2, 2008", fr:"marvel"},
+  {id:"iron-man-2", track:"mcu", medium:"Film", title:"Iron Man 2", ph:1, t:2011, when:"2011", ry:2010, rn:2010.3495, rel:"May 7, 2010", fr:"marvel"},
+  {id:"the-incredible-hulk", track:"mcu", medium:"Film", title:"The Incredible Hulk", ph:1, t:2011.01, when:"2011", ry:2008, rn:2008.4489, rel:"Jun 13, 2008", fr:"marvel"},
+  {id:"the-consultant", track:"mcu", medium:"Short", title:"The Consultant (One-Shot)", ph:1, t:2011.02, when:"2011", ry:2011, rn:2011.7043, rel:"Sep 2011", note:"Marvel One-Shot. Month of release approximate.", fr:"marvel"},
+  {id:"a-funny-thing-happened", track:"mcu", medium:"Short", title:"A Funny Thing Happened on the Way to Thor's Hammer", ph:1, t:2011.03, when:"2011", ry:2011, rn:2011.7876, rel:"Oct 2011", note:"Marvel One-Shot. Month of release approximate.", fr:"marvel"},
+  {id:"thor", track:"mcu", medium:"Film", title:"Thor", ph:1, t:2011.04, when:"2011", ry:2011, rn:2011.3468, rel:"May 6, 2011", fr:"marvel"},
+  {id:"the-avengers", track:"mcu", medium:"Film", title:"The Avengers", ph:1, t:2012, when:"2012", ry:2012, rn:2012.3414, rel:"May 4, 2012", fr:"marvel"},
+  {id:"item-47", track:"mcu", medium:"Short", title:"Item 47 (One-Shot)", ph:2, t:2012.01, when:"2012", ry:2012, rn:2012.7043, rel:"Sep 2012", note:"Marvel One-Shot. Month of release approximate.", fr:"marvel"},
+  {id:"iron-man-3", track:"mcu", medium:"Film", title:"Iron Man 3", ph:2, t:2012.9, when:"Dec 2012 – 2013", ry:2013, rn:2013.3387, rel:"May 3, 2013", fr:"marvel"},
+  {id:"all-hail-the-king", track:"mcu", medium:"Short", title:"All Hail the King (One-Shot)", ph:2, t:2013, when:"2013", ry:2014, rn:2014.121, rel:"Feb 2014", note:"Marvel One-Shot. Month of release approximate.", fr:"marvel"},
+  {id:"thor-the-dark-world", track:"mcu", medium:"Film", title:"Thor: The Dark World", ph:2, t:2013.1, when:"2013", ry:2013, rn:2013.8522, rel:"Nov 8, 2013", fr:"marvel"},
+  {id:"agents-of-shield", track:"mcu", medium:"Series", title:"Agents of S.H.I.E.L.D.", ph:8, lane:"mtv", t:2013.2, when:"2013 → 2018+", ry:2013, rn:2013.7285, rel:"2013–2020", status:"Ended 2020", note:"Marvel Television (ABC), seven seasons. Not on Disney+'s official timeline; placed after Thor: The Dark World.", fr:"marvel"},
+  {id:"captain-america-the-winter-soldier", track:"mcu", medium:"Film", title:"Captain America: The Winter Soldier", ph:2, t:2014, when:"2014", ry:2014, rn:2014.2581, rel:"Apr 4, 2014", fr:"marvel"},
+  {id:"guardians-of-the-galaxy", track:"mcu", medium:"Film", title:"Guardians of the Galaxy", ph:2, t:2014.1, when:"2014", ry:2014, rn:2014.5833, rel:"Aug 1, 2014", fr:"marvel"},
+  {id:"guardians-of-the-galaxy-vol-2", track:"mcu", medium:"Film", title:"Guardians of the Galaxy Vol. 2", ph:3, t:2014.2, when:"2014", ry:2017, rn:2017.3441, rel:"May 5, 2017", fr:"marvel"},
+  {id:"i-am-groot-s1", track:"mcu", medium:"Short", title:"I Am Groot — Season 1", ph:4, t:2014.3, when:"Undated", ry:2022, rn:2022.6075, rel:"Aug 10, 2022", note:"Animated shorts. Disney+ files them right after Guardians Vol. 2.", fr:"marvel"},
+  {id:"i-am-groot-s2", track:"mcu", medium:"Short", title:"I Am Groot — Season 2", ph:5, t:2014.31, when:"Undated", ry:2023, rn:2023.6801, rel:"Sep 6, 2023", fr:"marvel"},
+  {id:"daredevil-netflix", track:"mcu", medium:"Series", title:"Daredevil", ph:8, lane:"mtv", t:2015, when:"2015 → 2017", ry:2015, rn:2015.2742, rel:"2015–2018", status:"Ended 2018", note:"Marvel Television (Netflix), three seasons. Added to Disney+'s timeline in 2024; seasons interleave with other titles, shown here as one card.", fr:"marvel"},
+  {id:"jessica-jones", track:"mcu", medium:"Series", title:"Jessica Jones", ph:8, lane:"mtv", t:2015.1, when:"2015 → 2018", ry:2015, rn:2015.8844, rel:"2015–2019", status:"Ended 2019", note:"Marvel Television (Netflix), three seasons.", fr:"marvel"},
+  {id:"avengers-age-of-ultron", track:"mcu", medium:"Film", title:"Avengers: Age of Ultron", ph:2, t:2015.2, when:"2015", ry:2015, rn:2015.3333, rel:"May 1, 2015", fr:"marvel"},
+  {id:"ant-man", track:"mcu", medium:"Film", title:"Ant-Man", ph:2, t:2015.3, when:"2015", ry:2015, rn:2015.543, rel:"Jul 17, 2015", fr:"marvel"},
+  {id:"luke-cage", track:"mcu", medium:"Series", title:"Luke Cage", ph:8, lane:"mtv", t:2015.95, when:"2015–16 → 2017", ry:2016, rn:2016.7446, rel:"2016–2018", status:"Ended 2018", note:"Marvel Television (Netflix), two seasons.", fr:"marvel"},
+  {id:"captain-america-civil-war", track:"mcu", medium:"Film", title:"Captain America: Civil War", ph:3, t:2016, when:"2016", ry:2016, rn:2016.3468, rel:"May 6, 2016", fr:"marvel"},
+  {id:"black-widow", track:"mcu", medium:"Film", title:"Black Widow", ph:4, t:2016.01, when:"2016", ry:2021, rn:2021.5215, rel:"Jul 9, 2021", fr:"marvel"},
+  {id:"black-panther", track:"mcu", medium:"Film", title:"Black Panther", ph:3, t:2016.02, when:"2016", ry:2018, rn:2018.1237, rel:"Feb 16, 2018", fr:"marvel"},
+  {id:"spider-man-homecoming", track:"mcu", medium:"Film", title:"Spider-Man: Homecoming", ph:3, t:2016.03, when:"2016", ry:2017, rn:2017.5161, rel:"Jul 7, 2017", fr:"marvel"},
+  {id:"team-thor", track:"mcu", medium:"Short", title:"Team Thor", ph:3, t:2016.04, when:"2016", ry:2016, rn:2016.7043, rel:"Sep 2016", note:"Home-video short. Release month approximate.", fr:"marvel"},
+  {id:"iron-fist-netflix", track:"mcu", medium:"Series", title:"Iron Fist", ph:8, lane:"mtv", t:2016.05, when:"2016 → 2017", ry:2017, rn:2017.2097, rel:"2017–2018", status:"Ended 2018", note:"Marvel Television (Netflix), two seasons.", fr:"marvel"},
+  {id:"the-defenders", track:"mcu", medium:"Series", title:"The Defenders", ph:8, lane:"mtv", t:2016.06, when:"2016", ry:2017, rn:2017.629, rel:"2017", status:"Miniseries", note:"Marvel Television (Netflix).", fr:"marvel"},
+  {id:"the-punisher-netflix", track:"mcu", medium:"Series", title:"The Punisher", ph:8, lane:"mtv", t:2016.07, when:"2016 → 2018", ry:2017, rn:2017.8763, rel:"2017–2019", status:"Ended 2019", note:"Marvel Television (Netflix), two seasons. Not the same as The Punisher: One Last Kill.", fr:"marvel"},
+  {id:"doctor-strange", track:"mcu", medium:"Film", title:"Doctor Strange", ph:3, t:2016.5, when:"2016 – 2017", ry:2016, rn:2016.8414, rel:"Nov 4, 2016", fr:"marvel"},
+  {id:"inhumans", track:"mcu", medium:"Series", title:"Inhumans", ph:8, lane:"mtv", t:2017.2, when:"c. 2017 (unplaced)", ry:2017, rn:2017.7419, rel:"2017", status:"Ended 2017", note:"Marvel Television (ABC). No official timeline slot; placed by release year.", fr:"marvel"},
+  {id:"runaways", track:"mcu", medium:"Series", title:"Runaways", ph:8, lane:"mtv", t:2017.3, when:"c. 2017 (unplaced)", ry:2017, rn:2017.8871, rel:"2017–2019", status:"Ended 2019", note:"Marvel Television (Hulu), three seasons. No official timeline slot; placed by release year.", fr:"marvel"},
+  {id:"team-thor-part-2", track:"mcu", medium:"Short", title:"Team Thor: Part 2", ph:3, t:2017.35, when:"2017", ry:2017, rn:2017.4543, rel:"2017", note:"Home-video short. Release date approximate.", fr:"marvel"},
+  {id:"thor-ragnarok", track:"mcu", medium:"Film", title:"Thor: Ragnarok", ph:3, t:2017.5, when:"2017", ry:2017, rn:2017.8387, rel:"Nov 3, 2017", fr:"marvel"},
+  {id:"team-darryl", track:"mcu", medium:"Short", title:"Team Darryl", ph:3, t:2017.6, when:"2017 – 2018", ry:2018, rn:2018.4543, rel:"2018", note:"Home-video short. Release date approximate.", fr:"marvel"},
+  {id:"cloak-and-dagger", track:"mcu", medium:"Series", title:"Cloak & Dagger", ph:8, lane:"mtv", t:2018, when:"c. 2018 (unplaced)", ry:2018, rn:2018.4328, rel:"2018–2019", status:"Ended 2019", note:"Marvel Television (Freeform), two seasons. No official timeline slot; placed by release year.", fr:"marvel"},
+  {id:"ant-man-and-the-wasp", track:"mcu", medium:"Film", title:"Ant-Man and the Wasp", ph:3, t:2018.4, when:"2018", ry:2018, rn:2018.5134, rel:"Jul 6, 2018", fr:"marvel"},
+  {id:"avengers-infinity-war", track:"mcu", medium:"Film", title:"Avengers: Infinity War", ph:3, t:2018.5, when:"2018", ry:2018, rn:2018.3199, rel:"Apr 27, 2018", fr:"marvel"},
+  {id:"avengers-endgame", track:"mcu", medium:"Film", title:"Avengers: Endgame", ph:3, t:2018.9, when:"2018 → 2023", ry:2019, rn:2019.3172, rel:"Apr 26, 2019", note:"Ends in 2023, after the five-year Blip.", fr:"marvel"},
+  {id:"loki-s1", track:"mcu", medium:"Series", title:"Loki — Season 1", ph:4, t:2023, when:"Outside time (the TVA)", ry:2021, rn:2021.4382, rel:"Jun 9, 2021", note:"Set at the TVA, after Endgame. Season 2 is kept beside it; some guides move it later.", fr:"marvel"},
+  {id:"loki-s2", track:"mcu", medium:"Series", title:"Loki — Season 2", ph:5, t:2023.01, when:"Outside time (the TVA)", ry:2023, rn:2023.7608, rel:"Oct 5, 2023", fr:"marvel"},
+  {id:"wandavision", track:"mcu", medium:"Series", title:"WandaVision", ph:4, t:2023.1, when:"2023", ry:2021, rn:2021.0376, rel:"Jan 15, 2021", fr:"marvel"},
+  {id:"the-falcon-and-the-winter-soldier", track:"mcu", medium:"Series", title:"The Falcon and the Winter Soldier", ph:4, t:2023.5, when:"2023 – 2024", ry:2021, rn:2021.2151, rel:"Mar 19, 2021", fr:"marvel"},
+  {id:"shang-chi", track:"mcu", medium:"Film", title:"Shang-Chi and the Legend of the Ten Rings", ph:4, t:2024, when:"2024", ry:2021, rn:2021.672, rel:"Sep 3, 2021", note:"Guides disagree on its order against Far From Home.", fr:"marvel"},
+  {id:"spider-man-far-from-home", track:"mcu", medium:"Film", title:"Spider-Man: Far From Home", ph:3, t:2024.1, when:"2024", ry:2019, rn:2019.5027, rel:"Jul 2, 2019", fr:"marvel"},
+  {id:"eternals", track:"mcu", medium:"Film", title:"Eternals", ph:4, t:2024.2, when:"2024 (flashbacks from 5000 BC)", ry:2021, rn:2021.8441, rel:"Nov 5, 2021", fr:"marvel"},
+  {id:"spider-man-no-way-home", track:"mcu", medium:"Film", title:"Spider-Man: No Way Home", ph:4, t:2024.3, when:"2024", ry:2021, rn:2021.9597, rel:"Dec 17, 2021", fr:"marvel"},
+  {id:"doctor-strange-multiverse-of-madness", track:"mcu", medium:"Film", title:"Doctor Strange in the Multiverse of Madness", ph:4, t:2024.5, when:"2024 – 2025", ry:2022, rn:2022.3468, rel:"May 6, 2022", fr:"marvel"},
+  {id:"hawkeye", track:"mcu", medium:"Series", title:"Hawkeye", ph:4, t:2024.95, when:"Dec 2024", ry:2021, rn:2021.8952, rel:"Nov 24, 2021", fr:"marvel"},
+  {id:"moon-knight", track:"mcu", medium:"Series", title:"Moon Knight", ph:4, t:2025, when:"2025", ry:2022, rn:2022.2446, rel:"Mar 30, 2022", fr:"marvel"},
+  {id:"black-panther-wakanda-forever", track:"mcu", medium:"Film", title:"Black Panther: Wakanda Forever", ph:4, t:2025.1, when:"2025", ry:2022, rn:2022.8602, rel:"Nov 11, 2022", fr:"marvel"},
+  {id:"echo", track:"mcu", medium:"Series", title:"Echo", ph:5, t:2025.15, when:"2025", ry:2024, rn:2024.0215, rel:"Jan 9, 2024", fr:"marvel"},
+  {id:"she-hulk", track:"mcu", medium:"Series", title:"She-Hulk: Attorney at Law", ph:4, t:2025.2, when:"2025", ry:2022, rn:2022.629, rel:"Aug 18, 2022", fr:"marvel"},
+  {id:"ms-marvel", track:"mcu", medium:"Series", title:"Ms. Marvel", ph:4, t:2025.25, when:"2025", ry:2022, rn:2022.4355, rel:"Jun 8, 2022", fr:"marvel"},
+  {id:"thor-love-and-thunder", track:"mcu", medium:"Film", title:"Thor: Love and Thunder", ph:4, t:2025.3, when:"2025", ry:2022, rn:2022.5188, rel:"Jul 8, 2022", fr:"marvel"},
+  {id:"ironheart", track:"mcu", medium:"Series", title:"Ironheart", ph:5, t:2025.4, when:"2025", ry:2025, rn:2025.4785, rel:"Jun 24, 2025", note:"Guides disagree on its exact slot.", fr:"marvel"},
+  {id:"werewolf-by-night", track:"mcu", medium:"Special", title:"Werewolf by Night", ph:4, t:2025.5, when:"2025", ry:2022, rn:2022.7661, rel:"Oct 7, 2022", fr:"marvel"},
+  {id:"guardians-holiday-special", track:"mcu", medium:"Special", title:"The Guardians of the Galaxy Holiday Special", ph:4, t:2025.95, when:"Dec 2025", ry:2022, rn:2022.8978, rel:"Nov 25, 2022", fr:"marvel"},
+  {id:"ant-man-quantumania", track:"mcu", medium:"Film", title:"Ant-Man and the Wasp: Quantumania", ph:5, t:2026, when:"2025 – 2026", ry:2023, rn:2023.1263, rel:"Feb 17, 2023", fr:"marvel"},
+  {id:"guardians-of-the-galaxy-vol-3", track:"mcu", medium:"Film", title:"Guardians of the Galaxy Vol. 3", ph:5, t:2026.1, when:"2026", ry:2023, rn:2023.3441, rel:"May 5, 2023", fr:"marvel"},
+  {id:"secret-invasion", track:"mcu", medium:"Series", title:"Secret Invasion", ph:5, t:2026.2, when:"2026", ry:2023, rn:2023.4704, rel:"Jun 21, 2023", fr:"marvel"},
+  {id:"the-marvels", track:"mcu", medium:"Film", title:"The Marvels", ph:5, t:2026.3, when:"2026", ry:2023, rn:2023.8575, rel:"Nov 10, 2023", fr:"marvel"},
+  {id:"deadpool-and-wolverine", track:"mcu", medium:"Film", title:"Deadpool & Wolverine", ph:5, t:2026.4, when:"2018 / 2023 / 2024 (TVA, multiverse)", ry:2024, rn:2024.5672, rel:"Jul 26, 2024", note:"Brings the Fox X-Men universe into the MCU. Disney+ lists it after The Marvels.", fr:"marvel"},
+  {id:"agatha-all-along", track:"mcu", medium:"Series", title:"Agatha All Along", ph:5, t:2026.5, when:"2026", ry:2024, rn:2024.7124, rel:"Sep 18, 2024", fr:"marvel"},
+  {id:"daredevil-born-again-s1", track:"mcu", medium:"Series", title:"Daredevil: Born Again — Season 1", ph:5, t:2026.8, when:"2026 – 2027", ry:2025, rn:2025.1747, rel:"Mar 4, 2025", fr:"marvel"},
+  {id:"captain-america-brave-new-world", track:"mcu", medium:"Film", title:"Captain America: Brave New World", ph:5, t:2027, when:"2027", ry:2025, rn:2025.1183, rel:"Feb 14, 2025", fr:"marvel"},
+  {id:"thunderbolts", track:"mcu", medium:"Film", title:"Thunderbolts*", ph:5, t:2027.1, when:"2027", ry:2025, rn:2025.336, rel:"May 2, 2025", fr:"marvel"},
+  {id:"fantastic-four-first-steps", track:"mcu", medium:"Film", title:"The Fantastic Four: First Steps", ph:6, t:2027.2, when:"1964 · Earth-828 (Disney+ slot after Thunderbolts*)", ry:2025, rn:2025.5645, rel:"Jul 25, 2025", note:"The story is set in 1964 on Earth-828. It sits on the main timeline here, in the slot Disney+ gives it after Thunderbolts*.", fr:"marvel"},
+  {id:"wonder-man", track:"mcu", medium:"Series", title:"Wonder Man", ph:6, t:2027.3, when:"2026 – 2027", ry:2026, rn:2026.0699, rel:"Jan 27, 2026", note:"Disney+ places it after Thunderbolts*; one guide starts it near the Holiday Special. A second season was renewed in March 2026 and cancelled in July.", fr:"marvel"},
+  {id:"daredevil-born-again-s2", track:"mcu", medium:"Series", title:"Daredevil: Born Again — Season 2", ph:6, t:2027.4, when:"2027", ry:2026, rn:2026.2285, rel:"Mar 24, 2026", fr:"marvel"},
+  {id:"punisher-one-last-kill", track:"mcu", medium:"Special", title:"The Punisher: One Last Kill", ph:6, t:2027.5, when:"2027", ry:2026, rn:2026.3629, rel:"May 12, 2026", note:"Marvel Television Special Presentation.", fr:"marvel"},
+  {id:"spider-man-brand-new-day", track:"mcu", medium:"Film", title:"Spider-Man: Brand New Day", ph:6, t:2028, when:"~2028", ry:2026, rn:2026.5806, rel:"Jul 31, 2026", note:"In-universe year is reported, not confirmed: years after No Way Home.", fr:"marvel"},
+  {id:"visionquest", track:"mcu", medium:"Series", title:"VisionQuest", ph:6, t:2028.1, when:"Present day, c. 2027 – 2028", ry:2026, rn:2026.7823, rel:"Oct 13, 2026", status:"Airing · to Nov 10", note:"Eight episodes, October 13 – November 10, 2026. Set in the MCU's present day around the time of Brand New Day, and in the real world rather than Vision's mind.", fr:"marvel"},
+  {id:"avengers-doomsday", track:"mcu", medium:"Film", title:"Avengers: Doomsday", ph:6, t:2028.5, when:"After VisionQuest", ry:2026, rn:2026.9624, rel:"Dec 18, 2026", soon:true, status:"Post-production", fr:"marvel"},
+  {id:"avengers-secret-wars", track:"mcu", medium:"Film", title:"Avengers: Secret Wars", ph:6, t:2028.8, when:"After Doomsday", ry:2027, rn:2027.9597, rel:"Dec 17, 2027", soon:true, status:"Pre-production", fr:"marvel"},
+  {id:"daredevil-born-again-s3", track:"mcu", medium:"Series", title:"Daredevil: Born Again — Season 3", ph:6, t:null, when:"Placement not announced", ry:2027, rn:2027.2043, rel:"Mar 2027", soon:true, status:"Final season", note:"Eight episodes, finished filming and in post-production.", fr:"marvel"},
+  {id:"zodiac", track:"mcu", medium:"Series", title:"Zodiac", ph:7, t:null, when:"Placement not announced", ry:2028, rn:2028.4543, rel:"2028", soon:true, status:"Pre-production", fr:"marvel"},
+  {id:"x-men-film", track:"mcu", medium:"Film", title:"X-Men (untitled)", ph:7, t:null, when:"Placement not announced", ry:2028, rn:2028.3441, rel:"May 5, 2028", soon:true, status:"Pre-production", fr:"marvel"},
+  {id:"ghost-rider-mcu", track:"mcu", medium:"Film", title:"Ghost Rider", ph:7, t:null, when:"Placement not announced", ry:2028, rn:2028.5726, rel:"Jul 28, 2028", soon:true, status:"Pre-production", fr:"marvel"},
+  {id:"black-panther-3", track:"mcu", medium:"Film", title:"Black Panther III", ph:7, t:null, when:"Placement not announced", ry:2028, rn:2028.9543, rel:"Dec 15, 2028", soon:true, status:"In development", fr:"marvel"},
+  {id:"armor-wars", track:"mcu", medium:"Film", title:"Armor Wars", ph:7, t:null, when:"Placement not announced", ry:9999, rel:"TBA", soon:true, status:"In development · slowed", fr:"marvel"},
+  {id:"nova-film", track:"mcu", medium:"Film", title:"Nova (untitled)", ph:7, t:null, when:"Placement not announced", ry:9999, rel:"TBA", soon:true, status:"Early development", note:"Michael Waldron is writing.", fr:"marvel"},
+  {id:"shang-chi-2", track:"mcu", medium:"Film", title:"Shang-Chi sequel (untitled)", ph:7, t:null, when:"Placement not announced", ry:9999, rel:"TBA", soon:true, status:"In development", fr:"marvel"},
+  {id:"fantastic-four-2", track:"mcu", medium:"Film", title:"Fantastic Four sequel", ph:7, t:null, when:"Placement not announced", ry:9999, rel:"TBA", soon:true, status:"In development", fr:"marvel"},
+  {id:"deadpool-4", track:"mcu", medium:"Film", title:"Deadpool 4", ph:7, t:null, when:"Placement not announced", ry:9999, rel:"TBA", soon:true, status:"Early development", fr:"marvel"},
+  {id:"blade-mcu", track:"mcu", medium:"Film", title:"Blade", ph:7, t:null, when:"Placement not announced", ry:9999, rel:"TBA", soon:true, status:"Pulled from the calendar", note:"Removed from its release slot in October 2024 with no new date.", fr:"marvel"},
+  {id:"what-if-s1", track:"mcu", medium:"Animated", title:"What If…? — Season 1", ph:4, alt:true, t:null, when:"Alternate universes", ry:2021, rn:2021.6102, rel:"Aug 11, 2021", fr:"marvel"},
+  {id:"what-if-s2", track:"mcu", medium:"Animated", title:"What If…? — Season 2", ph:5, alt:true, t:null, when:"Alternate universes", ry:2023, rn:2023.9731, rel:"Dec 22, 2023", fr:"marvel"},
+  {id:"what-if-s3", track:"mcu", medium:"Animated", title:"What If…? — Season 3", ph:5, alt:true, t:null, when:"Alternate universes", ry:2024, rn:2024.9731, rel:"Dec 22, 2024", fr:"marvel"},
+  {id:"x-men-97-s1", track:"mcu", medium:"Animated", title:"X-Men '97 — Season 1", ph:5, alt:true, t:null, when:"Its own universe", ry:2024, rn:2024.2177, rel:"Mar 20, 2024", note:"Release date and phase from memory; check before relying on them.", fr:"marvel"},
+  {id:"your-friendly-neighborhood-spider-man-s1", track:"mcu", medium:"Animated", title:"Your Friendly Neighborhood Spider-Man — Season 1", ph:5, alt:true, t:null, when:"Alternate universes", ry:2025, rn:2025.0753, rel:"Jan 29, 2025", fr:"marvel"},
+  {id:"marvel-zombies", track:"mcu", medium:"Animated", title:"Marvel Zombies", ph:6, alt:true, t:null, when:"Alternate universes", ry:2025, rn:2025.7285, rel:"Sep 24, 2025", note:"Spin-off of What If…?", fr:"marvel"},
+  {id:"x-men-97-s2", track:"mcu", medium:"Animated", title:"X-Men '97 — Season 2", ph:6, alt:true, t:null, when:"Its own universe", ry:2026, rn:2026.5, rel:"Jul 1, 2026", note:"Nine episodes, July 1 – August 12, 2026.", fr:"marvel"},
+  {id:"your-friendly-neighborhood-spider-man-s2", track:"mcu", medium:"Animated", title:"Your Friendly Neighborhood Spider-Man — Season 2", ph:6, alt:true, t:null, when:"Alternate universes", ry:2027, rn:2027.0323, rel:"Jan 13, 2027", soon:true, status:"In production", fr:"marvel"},
+  {id:"marvel-zombies-the-winter-soldier", track:"mcu", medium:"Special", title:"Marvel Zombies: The Winter Soldier", ph:6, alt:true, t:null, when:"Alternate universes", ry:2027, rn:2027.7876, rel:"Oct 2027", soon:true, status:"In production", note:"Two-episode animated special.", fr:"marvel"},
+  {id:"x-men-97-s3", track:"mcu", medium:"Animated", title:"X-Men '97 — Season 3", ph:6, alt:true, t:null, when:"Its own universe", ry:9999, rel:"TBA", soon:true, status:"Renewed · no date", fr:"marvel"},
+  {id:"your-friendly-neighborhood-spider-man-s3", track:"mcu", medium:"Animated", title:"Your Friendly Neighborhood Spider-Man — Season 3", ph:7, alt:true, t:null, when:"Alternate universes", ry:2028, rn:2028.4543, rel:"2028", soon:true, status:"Renewed", fr:"marvel"},
+  {id:"marvel-zombies-fist-of-khonshu", track:"mcu", medium:"Special", title:"Marvel Zombies: The Fist of Khonshu", ph:7, alt:true, t:null, when:"Alternate universes", ry:2028, rn:2028.7876, rel:"Oct 2028", soon:true, status:"Announced", note:"Two-episode animated special.", fr:"marvel"},
+  {id:"your-friendly-neighborhood-spider-man-s4", track:"mcu", medium:"Animated", title:"Your Friendly Neighborhood Spider-Man — Season 4", ph:7, alt:true, t:null, when:"Alternate universes", ry:2029, rn:2029.4543, rel:"2029", soon:true, status:"Renewed", fr:"marvel"},
+  {id:"marvel-zombies-the-last-guardian", track:"mcu", medium:"Special", title:"Marvel Zombies: The Last Guardian", ph:7, alt:true, t:null, when:"Alternate universes", ry:2029, rn:2029.7876, rel:"Oct 2029", soon:true, status:"Announced", note:"Two-episode animated special.", fr:"marvel"}
+];
+const MARVEL_OTHER = [
+  {id:"captain-america-1944", track:"other", medium:"Serial", title:"Captain America (1944)", gp:1, t:null, when:"Not on a timeline", ry:1944, rn:1944.4543, rel:"1944", note:"Republic Pictures serial, the first screen Captain America.", fr:"marvel"},
+  {id:"spidey-super-stories", track:"other", medium:"Series", title:"Spidey Super Stories", gp:1, t:null, when:"Not on a timeline", ry:1974, rn:1974.4543, rel:"1974–1977", note:"PBS, as segments of The Electric Company.", fr:"marvel"},
+  {id:"amazing-spider-man-1977", track:"other", medium:"Series", title:"The Amazing Spider-Man (1977)", gp:1, t:null, when:"Not on a timeline", ry:1977, rn:1977.4543, rel:"1977–1979", note:"CBS. Includes the TV films Spider-Man (1977), Spider-Man Strikes Back (1978) and Spider-Man: The Dragon's Challenge (1981).", fr:"marvel"},
+  {id:"incredible-hulk-1977", track:"other", medium:"Series", title:"The Incredible Hulk (1977)", gp:1, t:null, when:"Not on a timeline", ry:1977, rn:1977.4543, rel:"1977–1982", note:"CBS and Universal Television. Three TV films followed: see The Incredible Hulk TV films.", fr:"marvel"},
+  {id:"doctor-strange-1978", track:"other", medium:"TV film", title:"Dr. Strange (1978)", gp:1, t:null, when:"Not on a timeline", ry:1978, rn:1978.4543, rel:"1978", status:"Unsold pilot", fr:"marvel"},
+  {id:"spider-man-japan-1978", track:"other", medium:"Series", title:"Spider-Man (Japan, 1978)", gp:1, t:null, when:"Not on a timeline", ry:1978, rn:1978.4543, rel:"1978–1979", note:"Toei for TV Tokyo.", fr:"marvel"},
+  {id:"captain-america-1979", track:"other", medium:"TV film", title:"Captain America (1979 TV films)", gp:1, t:null, when:"Not on a timeline", ry:1979, rn:1979.4543, rel:"1979", note:"Captain America and Captain America II: Death Too Soon.", fr:"marvel"},
+  {id:"battle-fever-j", track:"other", medium:"Series", title:"Battle Fever J", gp:1, t:null, when:"Not on a timeline", ry:1979, rn:1979.4543, rel:"1979–1980", note:"Toei's Super Sentai series with a Marvel co-production credit.", fr:"marvel"},
+  {id:"denshi-sentai-denjiman", track:"other", medium:"Series", title:"Denshi Sentai Denjiman", gp:1, t:null, when:"Not on a timeline", ry:1980, rn:1980.4543, rel:"1980–1981", note:"Super Sentai series with a Marvel Comics co-production credit.", fr:"marvel"},
+  {id:"taiyo-sentai-sun-vulcan", track:"other", medium:"Series", title:"Taiyo Sentai Sun Vulcan", gp:1, t:null, when:"Not on a timeline", ry:1981, rn:1981.4543, rel:"1981–1982", note:"Super Sentai series with a Marvel Comics co-production credit.", fr:"marvel"},
+  {id:"howard-the-duck", track:"other", medium:"Film", title:"Howard the Duck", gp:1, t:null, when:"Not on a timeline", ry:1986, rn:1986.5833, rel:"Aug 1, 1986", note:"Lucasfilm, distributed by Universal.", fr:"marvel"},
+  {id:"hulk-tv-films", track:"other", medium:"TV film", title:"The Incredible Hulk TV films", gp:1, t:null, when:"Not on a timeline", ry:1988, rn:1988.4543, rel:"1988–1990", note:"The Incredible Hulk Returns (1988), The Trial of the Incredible Hulk (1989) and The Death of the Incredible Hulk (1990).", fr:"marvel"},
+  {id:"the-punisher-1989", track:"other", medium:"Film", title:"The Punisher (1989)", gp:1, t:null, when:"Not on a timeline", ry:1989, rn:1989.4543, rel:"1989", note:"New World Pictures. Released direct-to-video in the U.S.", fr:"marvel"},
+  {id:"captain-america-1990", track:"other", medium:"Film", title:"Captain America (1990)", gp:1, t:null, when:"Not on a timeline", ry:1990, rn:1990.4543, rel:"1990", note:"21st Century Film Corp. Released direct-to-video in the U.S.", fr:"marvel"},
+  {id:"power-pack-pilot", track:"other", medium:"Pilot", title:"Power Pack (pilot)", gp:1, t:null, when:"Not on a timeline", ry:1991, rn:1991.4543, rel:"1991", status:"Never became a series", note:"NBC.", fr:"marvel"},
+  {id:"fantastic-four-1994", track:"other", medium:"Film", title:"The Fantastic Four (1994)", gp:1, t:null, when:"Not on a timeline", ry:1994, rn:1994.4543, rel:"1994", status:"Never officially released", note:"Made for Constantin Film.", fr:"marvel"},
+  {id:"generation-x-1996", track:"other", medium:"TV film", title:"Generation X (1996)", gp:1, t:null, when:"Not on a timeline", ry:1996, rn:1996.4543, rel:"1996", status:"Unsold series pilot", tags:["Date unverified"], fr:"marvel"},
+  {id:"nick-fury-1998", track:"other", medium:"TV film", title:"Nick Fury: Agent of S.H.I.E.L.D. (1998)", gp:1, t:null, when:"Not on a timeline", ry:1998, rn:1998.4543, rel:"1998", status:"Unsold series pilot", tags:["Date unverified"], note:"Fox.", fr:"marvel"},
+  {id:"blade-1998", track:"other", medium:"Film", title:"Blade", gp:2, t:null, when:"Not on a timeline", ry:1998, rn:1998.6371, rel:"Aug 21, 1998", note:"New Line Cinema.", fr:"marvel"},
+  {id:"blade-ii", track:"other", medium:"Film", title:"Blade II", gp:2, t:null, when:"Not on a timeline", ry:2002, rn:2002.2231, rel:"Mar 22, 2002", note:"New Line Cinema.", fr:"marvel"},
+  {id:"blade-trinity", track:"other", medium:"Film", title:"Blade: Trinity", gp:2, t:null, when:"Not on a timeline", ry:2004, rn:2004.9355, rel:"Dec 8, 2004", note:"New Line Cinema.", fr:"marvel"},
+  {id:"blade-the-series", track:"other", medium:"Series", title:"Blade: The Series", gp:2, t:null, when:"Not on a timeline", ry:2006, rn:2006.4543, rel:"2006", note:"Spike. Takes place after Blade: Trinity.", fr:"marvel"},
+  {id:"x-men-2000", track:"other", medium:"Film", title:"X-Men (2000)", gp:3, t:null, when:"Not on a timeline", ry:2000, rn:2000.5349, rel:"Jul 14, 2000", note:"20th Century Fox.", fr:"marvel"},
+  {id:"mutant-x", track:"other", medium:"Series", title:"Mutant X", gp:3, t:null, when:"Not on a timeline", ry:2001, rn:2001.4543, rel:"2001–2004", note:"Syndicated. Not part of the Fox films: it began as an X-Men series and was changed for legal reasons.", fr:"marvel"},
+  {id:"x2", track:"other", medium:"Film", title:"X2", gp:3, t:null, when:"Not on a timeline", ry:2003, rn:2003.336, rel:"May 2, 2003", fr:"marvel"},
+  {id:"x-men-the-last-stand", track:"other", medium:"Film", title:"X-Men: The Last Stand", gp:3, t:null, when:"Not on a timeline", ry:2006, rn:2006.4005, rel:"May 26, 2006", fr:"marvel"},
+  {id:"x-men-origins-wolverine", track:"other", medium:"Film", title:"X-Men Origins: Wolverine", gp:3, t:null, when:"Not on a timeline", ry:2009, rn:2009.3333, rel:"May 1, 2009", fr:"marvel"},
+  {id:"x-men-first-class", track:"other", medium:"Film", title:"X-Men: First Class", gp:3, t:null, when:"Not on a timeline", ry:2011, rn:2011.422, rel:"Jun 3, 2011", fr:"marvel"},
+  {id:"the-wolverine", track:"other", medium:"Film", title:"The Wolverine", gp:3, t:null, when:"Not on a timeline", ry:2013, rn:2013.5672, rel:"Jul 26, 2013", fr:"marvel"},
+  {id:"x-men-days-of-future-past", track:"other", medium:"Film", title:"X-Men: Days of Future Past", gp:3, t:null, when:"Not on a timeline", ry:2014, rn:2014.3925, rel:"May 23, 2014", fr:"marvel"},
+  {id:"deadpool-2016", track:"other", medium:"Film", title:"Deadpool", gp:3, t:null, when:"Not on a timeline", ry:2016, rn:2016.1129, rel:"Feb 12, 2016", fr:"marvel"},
+  {id:"x-men-apocalypse", track:"other", medium:"Film", title:"X-Men: Apocalypse", gp:3, t:null, when:"Not on a timeline", ry:2016, rn:2016.4032, rel:"May 27, 2016", fr:"marvel"},
+  {id:"logan", track:"other", medium:"Film", title:"Logan", gp:3, t:null, when:"Not on a timeline", ry:2017, rn:2017.172, rel:"Mar 3, 2017", fr:"marvel"},
+  {id:"legion", track:"other", medium:"Series", title:"Legion", gp:3, t:null, when:"Not on a timeline", ry:2017, rn:2017.1022, rel:"2017–2019", note:"FX. Connected to the X-Men films.", fr:"marvel"},
+  {id:"the-gifted", track:"other", medium:"Series", title:"The Gifted", gp:3, t:null, when:"Not on a timeline", ry:2017, rn:2017.7527, rel:"2017–2019", note:"Fox. Connected to the X-Men films.", fr:"marvel"},
+  {id:"deadpool-2", track:"other", medium:"Film", title:"Deadpool 2", gp:3, t:null, when:"Not on a timeline", ry:2018, rn:2018.379, rel:"May 18, 2018", note:"Deadpool & Wolverine (2024) brings this universe into the MCU; see the MCU tab.", fr:"marvel"},
+  {id:"dark-phoenix", track:"other", medium:"Film", title:"Dark Phoenix", gp:3, t:null, when:"Not on a timeline", ry:2019, rn:2019.4328, rel:"Jun 7, 2019", fr:"marvel"},
+  {id:"the-new-mutants", track:"other", medium:"Film", title:"The New Mutants", gp:3, t:null, when:"Not on a timeline", ry:2020, rn:2020.6559, rel:"Aug 28, 2020", note:"20th Century Studios.", fr:"marvel"},
+  {id:"daredevil-2003", track:"other", medium:"Film", title:"Daredevil (2003)", gp:4, t:null, when:"Not on a timeline", ry:2003, rn:2003.1183, rel:"Feb 14, 2003", note:"20th Century Fox.", fr:"marvel"},
+  {id:"elektra-2005", track:"other", medium:"Film", title:"Elektra", gp:4, t:null, when:"Not on a timeline", ry:2005, rn:2005.0349, rel:"Jan 14, 2005", note:"20th Century Fox.", fr:"marvel"},
+  {id:"fantastic-four-2005", track:"other", medium:"Film", title:"Fantastic Four (2005)", gp:4, t:null, when:"Not on a timeline", ry:2005, rn:2005.5188, rel:"Jul 8, 2005", note:"20th Century Fox.", fr:"marvel"},
+  {id:"fantastic-four-rise-of-the-silver-surfer", track:"other", medium:"Film", title:"Fantastic Four: Rise of the Silver Surfer", gp:4, t:null, when:"Not on a timeline", ry:2007, rn:2007.4543, rel:"Jun 15, 2007", fr:"marvel"},
+  {id:"fantastic-four-2015", track:"other", medium:"Film", title:"Fantastic Four (2015)", gp:4, t:null, when:"Not on a timeline", ry:2015, rn:2015.5995, rel:"Aug 7, 2015", note:"A reboot from 20th Century Fox.", fr:"marvel"},
+  {id:"spider-man-2002", track:"other", medium:"Film", title:"Spider-Man (2002)", gp:5, t:null, when:"Not on a timeline", ry:2002, rn:2002.3387, rel:"May 3, 2002", note:"Sam Raimi, Columbia.", fr:"marvel"},
+  {id:"spider-man-2-2004", track:"other", medium:"Film", title:"Spider-Man 2", gp:5, t:null, when:"Not on a timeline", ry:2004, rn:2004.4946, rel:"Jun 30, 2004", fr:"marvel"},
+  {id:"spider-man-3-2007", track:"other", medium:"Film", title:"Spider-Man 3", gp:5, t:null, when:"Not on a timeline", ry:2007, rn:2007.3414, rel:"May 4, 2007", fr:"marvel"},
+  {id:"the-amazing-spider-man", track:"other", medium:"Film", title:"The Amazing Spider-Man", gp:5, t:null, when:"Not on a timeline", ry:2012, rn:2012.5054, rel:"Jul 3, 2012", note:"Marc Webb, Columbia.", fr:"marvel"},
+  {id:"the-amazing-spider-man-2", track:"other", medium:"Film", title:"The Amazing Spider-Man 2", gp:5, t:null, when:"Not on a timeline", ry:2014, rn:2014.336, rel:"May 2, 2014", fr:"marvel"},
+  {id:"venom-2018", track:"other", medium:"Film", title:"Venom", gp:6, t:null, when:"Not on a timeline", ry:2018, rn:2018.7608, rel:"Oct 5, 2018", note:"Sony's Spider-Man Universe.", fr:"marvel"},
+  {id:"into-the-spider-verse", track:"other", medium:"Animated film", title:"Spider-Man: Into the Spider-Verse", gp:6, t:null, when:"Not on a timeline", ry:2018, rn:2018.9516, rel:"Dec 14, 2018", note:"Sony Pictures Animation.", fr:"marvel"},
+  {id:"venom-let-there-be-carnage", track:"other", medium:"Film", title:"Venom: Let There Be Carnage", gp:6, t:null, when:"Not on a timeline", ry:2021, rn:2021.75, rel:"Oct 1, 2021", fr:"marvel"},
+  {id:"morbius", track:"other", medium:"Film", title:"Morbius", gp:6, t:null, when:"Not on a timeline", ry:2022, rn:2022.25, rel:"Apr 1, 2022", fr:"marvel"},
+  {id:"across-the-spider-verse", track:"other", medium:"Animated film", title:"Spider-Man: Across the Spider-Verse", gp:6, t:null, when:"Not on a timeline", ry:2023, rn:2023.4194, rel:"Jun 2, 2023", fr:"marvel"},
+  {id:"madame-web", track:"other", medium:"Film", title:"Madame Web", gp:6, t:null, when:"Not on a timeline", ry:2024, rn:2024.1183, rel:"Feb 14, 2024", fr:"marvel"},
+  {id:"venom-the-last-dance", track:"other", medium:"Film", title:"Venom: The Last Dance", gp:6, t:null, when:"Not on a timeline", ry:2024, rn:2024.8145, rel:"Oct 25, 2024", note:"Closes Eddie Brock's story and sets up Knull.", fr:"marvel"},
+  {id:"kraven-the-hunter", track:"other", medium:"Film", title:"Kraven the Hunter", gp:6, t:null, when:"Not on a timeline", ry:2024, rn:2024.9489, rel:"Dec 13, 2024", fr:"marvel"},
+  {id:"spider-noir", track:"other", medium:"Series", title:"Spider-Noir", gp:6, t:null, when:"Not on a timeline", ry:2026, rn:2026.3978, rel:"May 2026", status:"Cancelled after one season", note:"MGM+ and Prime Video, eight episodes. Cancelled in September 2026.", fr:"marvel"},
+  {id:"beyond-the-spider-verse", track:"other", medium:"Animated film", title:"Spider-Man: Beyond the Spider-Verse", gp:6, t:null, when:"Not on a timeline", ry:2027, rn:2027.4624, rel:"Jun 18, 2027", soon:true, status:"In production", tags:["Date varies by source"], fr:"marvel"},
+  {id:"clone-saga-series", track:"other", medium:"Series", title:"Clone Saga series", gp:6, t:null, when:"Not on a timeline", ry:9999, rel:"TBA", soon:true, status:"In development", note:"Kelvin Yu's take on the second Clone Saga. Reported in September 2026 as close to an Amazon order; no order confirmed.", fr:"marvel"},
+  {id:"venom-animated", track:"other", medium:"Animated film", title:"Animated Venom film", gp:6, t:null, when:"Not on a timeline", ry:9999, rel:"TBA", soon:true, status:"In development", note:"Sony Pictures Animation, with Tom Hardy creatively involved. Its status is unclear after Sony said in August 2026 that no other Spider-Man-character films were in active development.", fr:"marvel"},
+  {id:"hulk-2003", track:"other", medium:"Film", title:"Hulk (2003)", gp:7, t:null, when:"Not on a timeline", ry:2003, rn:2003.4677, rel:"Jun 20, 2003", note:"Ang Lee, Universal.", fr:"marvel"},
+  {id:"the-punisher-2004", track:"other", medium:"Film", title:"The Punisher (2004)", gp:7, t:null, when:"Not on a timeline", ry:2004, rn:2004.2903, rel:"Apr 16, 2004", note:"Artisan and Lionsgate.", fr:"marvel"},
+  {id:"man-thing", track:"other", medium:"Film", title:"Man-Thing", gp:7, t:null, when:"Not on a timeline", ry:2005, rn:2005.4543, rel:"2005", note:"Lionsgate. Premiered on Syfy.", fr:"marvel"},
+  {id:"ghost-rider-2007", track:"other", medium:"Film", title:"Ghost Rider (2007)", gp:7, t:null, when:"Not on a timeline", ry:2007, rn:2007.1237, rel:"Feb 16, 2007", note:"Columbia.", fr:"marvel"},
+  {id:"punisher-war-zone", track:"other", medium:"Film", title:"Punisher: War Zone", gp:7, t:null, when:"Not on a timeline", ry:2008, rn:2008.9274, rel:"Dec 5, 2008", note:"Lionsgate.", fr:"marvel"},
+  {id:"ghost-rider-spirit-of-vengeance", track:"other", medium:"Film", title:"Ghost Rider: Spirit of Vengeance", gp:7, t:null, when:"Not on a timeline", ry:2012, rn:2012.1263, rel:"Feb 17, 2012", note:"Released internationally from December 2011.", fr:"marvel"},
+  {id:"helstrom", track:"other", medium:"Series", title:"Helstrom", gp:7, t:null, when:"Not on a timeline", ry:2020, rn:2020.4543, rel:"2020", status:"Not MCU, per its showrunner", note:"Hulu. Originally planned for Marvel Television's Adventure into Fear line.", fr:"marvel"},
+  {id:"night-man", track:"other", medium:"Series", title:"Night Man", gp:8, t:null, when:"Not on a timeline", ry:1997, rn:1997.4543, rel:"1997–1999", note:"Syndicated. Based on a Malibu Comics character.", fr:"marvel"},
+  {id:"men-in-black-1997", track:"other", medium:"Film", title:"Men in Black", gp:8, t:null, when:"Not on a timeline", ry:1997, rn:1997.5027, rel:"Jul 2, 1997", note:"Based on a comic from Malibu, later owned by Marvel. Columbia.", fr:"marvel"},
+  {id:"men-in-black-ii", track:"other", medium:"Film", title:"Men in Black II", gp:8, t:null, when:"Not on a timeline", ry:2002, rn:2002.5054, rel:"Jul 3, 2002", fr:"marvel"},
+  {id:"kick-ass", track:"other", medium:"Film", title:"Kick-Ass", gp:8, t:null, when:"Not on a timeline", ry:2010, rn:2010.2903, rel:"Apr 16, 2010", note:"Based on a Marvel Icon comic.", fr:"marvel"},
+  {id:"men-in-black-3", track:"other", medium:"Film", title:"Men in Black 3", gp:8, t:null, when:"Not on a timeline", ry:2012, rn:2012.3978, rel:"May 25, 2012", fr:"marvel"},
+  {id:"kick-ass-2", track:"other", medium:"Film", title:"Kick-Ass 2", gp:8, t:null, when:"Not on a timeline", ry:2013, rn:2013.6237, rel:"Aug 16, 2013", fr:"marvel"},
+  {id:"kingsman-the-secret-service", track:"other", medium:"Film", title:"Kingsman: The Secret Service", gp:8, t:null, when:"Not on a timeline", ry:2015, rn:2015.1156, rel:"Feb 13, 2015 (U.S.)", note:"Based on a Marvel Icon comic.", fr:"marvel"},
+  {id:"powers", track:"other", medium:"Series", title:"Powers", gp:8, t:null, when:"Not on a timeline", ry:2015, rn:2015.4543, rel:"2015–2016", note:"PlayStation Network. Based on an Icon comic.", fr:"marvel"},
+  {id:"kingsman-the-golden-circle", track:"other", medium:"Film", title:"Kingsman: The Golden Circle", gp:8, t:null, when:"Not on a timeline", ry:2017, rn:2017.7231, rel:"Sep 22, 2017", fr:"marvel"},
+  {id:"men-in-black-international", track:"other", medium:"Film", title:"Men in Black: International", gp:8, t:null, when:"Not on a timeline", ry:2019, rn:2019.4516, rel:"Jun 14, 2019", fr:"marvel"},
+  {id:"the-kings-man", track:"other", medium:"Film", title:"The King's Man", gp:8, t:null, when:"Not on a timeline", ry:2021, rn:2021.9731, rel:"Dec 22, 2021", note:"20th Century Studios.", fr:"marvel"},
+  {id:"criminal-prime", track:"other", medium:"Series", title:"Criminal", gp:8, t:null, when:"Not on a timeline", ry:9999, rel:"2026", soon:true, status:"Announced", tags:["Status unverified"], note:"Prime Video, based on an Icon comic.", fr:"marvel"},
+  {id:"stuntnuts-the-movie", track:"other", medium:"Film", title:"Stuntnuts: The Movie", gp:8, t:null, when:"Not on a timeline", ry:9999, rel:"TBA", soon:true, status:"Completed · no date", note:"A Kick-Ass spin-off.", fr:"marvel"},
+  {id:"the-marvel-super-heroes", track:"other", medium:"Animated", title:"The Marvel Super Heroes", gp:9, t:null, when:"Not on a timeline", ry:1966, rn:1966.4543, rel:"1966", tags:["Year unverified"], fr:"marvel"},
+  {id:"spider-man-1967", track:"other", medium:"Animated", title:"Spider-Man (1967)", gp:9, t:null, when:"Not on a timeline", ry:1967, rn:1967.4543, rel:"1967–1970", fr:"marvel"},
+  {id:"fantastic-four-1967", track:"other", medium:"Animated", title:"Fantastic Four (1967)", gp:9, t:null, when:"Not on a timeline", ry:1967, rn:1967.4543, rel:"1967–1970", fr:"marvel"},
+  {id:"new-fantastic-four", track:"other", medium:"Animated", title:"The New Fantastic Four", gp:9, t:null, when:"Not on a timeline", ry:1978, rn:1978.4543, rel:"1978", tags:["Year unverified"], fr:"marvel"},
+  {id:"spider-woman-1979", track:"other", medium:"Animated", title:"Spider-Woman", gp:9, t:null, when:"Not on a timeline", ry:1979, rn:1979.4543, rel:"1979", tags:["Year unverified"], fr:"marvel"},
+  {id:"spider-man-1981", track:"other", medium:"Animated", title:"Spider-Man (1981)", gp:9, t:null, when:"Not on a timeline", ry:1981, rn:1981.4543, rel:"1981", fr:"marvel"},
+  {id:"spider-man-and-his-amazing-friends", track:"other", medium:"Animated", title:"Spider-Man and His Amazing Friends", gp:9, t:null, when:"Not on a timeline", ry:1981, rn:1981.4543, rel:"1981–1983", tags:["Year unverified"], fr:"marvel"},
+  {id:"incredible-hulk-1982", track:"other", medium:"Animated", title:"The Incredible Hulk (1982)", gp:9, t:null, when:"Not on a timeline", ry:1982, rn:1982.4543, rel:"1982", fr:"marvel"},
+  {id:"pryde-of-the-x-men", track:"other", medium:"Animated", title:"X-Men: Pryde of the X-Men", gp:9, t:null, when:"Not on a timeline", ry:1989, rn:1989.4543, rel:"1989", status:"Unsold pilot", tags:["Year unverified"], fr:"marvel"},
+  {id:"x-men-the-animated-series", track:"other", medium:"Animated", title:"X-Men: The Animated Series", gp:9, t:null, when:"Not on a timeline", ry:1992, rn:1992.4543, rel:"1992–1997", tags:["Year unverified"], fr:"marvel"},
+  {id:"iron-man-1994", track:"other", medium:"Animated", title:"Iron Man (1994)", gp:9, t:null, when:"Not on a timeline", ry:1994, rn:1994.4543, rel:"1994–1996", tags:["Year unverified"], fr:"marvel"},
+  {id:"fantastic-four-1994-animated", track:"other", medium:"Animated", title:"Fantastic Four (1994)", gp:9, t:null, when:"Not on a timeline", ry:1994, rn:1994.4543, rel:"1994–1996", note:"The animated series, not the unreleased 1994 film.", fr:"marvel"},
+  {id:"spider-man-the-animated-series", track:"other", medium:"Animated", title:"Spider-Man: The Animated Series", gp:9, t:null, when:"Not on a timeline", ry:1994, rn:1994.4543, rel:"1994–1998", tags:["Year unverified"], fr:"marvel"},
+  {id:"incredible-hulk-1996", track:"other", medium:"Animated", title:"The Incredible Hulk (1996)", gp:9, t:null, when:"Not on a timeline", ry:1996, rn:1996.4543, rel:"1996–1997", fr:"marvel"},
+  {id:"silver-surfer-1998", track:"other", medium:"Animated", title:"Silver Surfer", gp:9, t:null, when:"Not on a timeline", ry:1998, rn:1998.4543, rel:"1998", tags:["Year unverified"], fr:"marvel"},
+  {id:"spider-man-unlimited", track:"other", medium:"Animated", title:"Spider-Man Unlimited", gp:9, t:null, when:"Not on a timeline", ry:1999, rn:1999.4543, rel:"1999", tags:["Year unverified"], fr:"marvel"},
+  {id:"avengers-united-they-stand", track:"other", medium:"Animated", title:"The Avengers: United They Stand", gp:9, t:null, when:"Not on a timeline", ry:1999, rn:1999.4543, rel:"1999–2000", tags:["Year unverified"], fr:"marvel"},
+  {id:"x-men-evolution", track:"other", medium:"Animated", title:"X-Men: Evolution", gp:9, t:null, when:"Not on a timeline", ry:2000, rn:2000.4543, rel:"2000–2003", tags:["Year unverified"], fr:"marvel"},
+  {id:"spider-man-new-animated-series", track:"other", medium:"Animated", title:"Spider-Man: The New Animated Series", gp:9, t:null, when:"Not on a timeline", ry:2003, rn:2003.4543, rel:"2003", tags:["Year unverified"], fr:"marvel"},
+  {id:"fantastic-four-worlds-greatest-heroes", track:"other", medium:"Animated", title:"Fantastic Four: World's Greatest Heroes", gp:9, t:null, when:"Not on a timeline", ry:2006, rn:2006.4543, rel:"2006", tags:["Year unverified"], fr:"marvel"},
+  {id:"iron-man-armored-adventures", track:"other", medium:"Animated", title:"Iron Man: Armored Adventures", gp:9, t:null, when:"Not on a timeline", ry:2008, rn:2008.4543, rel:"2008–2012", tags:["Year unverified"], fr:"marvel"},
+  {id:"the-spectacular-spider-man", track:"other", medium:"Animated", title:"The Spectacular Spider-Man", gp:9, t:null, when:"Not on a timeline", ry:2008, rn:2008.4543, rel:"2008–2009", tags:["Year unverified"], fr:"marvel"},
+  {id:"wolverine-and-the-x-men", track:"other", medium:"Animated", title:"Wolverine and the X-Men", gp:9, t:null, when:"Not on a timeline", ry:2009, rn:2009.4543, rel:"2009", tags:["Year unverified"], fr:"marvel"},
+  {id:"the-super-hero-squad-show", track:"other", medium:"Animated", title:"The Super Hero Squad Show", gp:9, t:null, when:"Not on a timeline", ry:2009, rn:2009.4543, rel:"2009–2011", tags:["Year unverified"], fr:"marvel"},
+  {id:"marvel-anime", track:"other", medium:"Animated", title:"Marvel Anime", gp:9, t:null, when:"Not on a timeline", ry:2010, rn:2010.4543, rel:"2010–2011", tags:["Year unverified"], note:"Japanese series built on Iron Man, X-Men, Wolverine and Blade.", fr:"marvel"},
+  {id:"avengers-earths-mightiest-heroes", track:"other", medium:"Animated", title:"The Avengers: Earth's Mightiest Heroes", gp:9, t:null, when:"Not on a timeline", ry:2010, rn:2010.4543, rel:"2010–2013", tags:["Year unverified"], fr:"marvel"},
+  {id:"ultimate-spider-man", track:"other", medium:"Animated", title:"Ultimate Spider-Man", gp:9, t:null, when:"Not on a timeline", ry:2012, rn:2012.4543, rel:"2012–2017", tags:["Year unverified"], fr:"marvel"},
+  {id:"avengers-assemble", track:"other", medium:"Animated", title:"Avengers Assemble", gp:9, t:null, when:"Not on a timeline", ry:2013, rn:2013.4543, rel:"2013–2019", tags:["Year unverified"], fr:"marvel"},
+  {id:"hulk-and-the-agents-of-smash", track:"other", medium:"Animated", title:"Hulk and the Agents of S.M.A.S.H.", gp:9, t:null, when:"Not on a timeline", ry:2013, rn:2013.4543, rel:"2013–2015", tags:["Year unverified"], fr:"marvel"},
+  {id:"marvel-disk-wars-the-avengers", track:"other", medium:"Animated", title:"Marvel Disk Wars: The Avengers", gp:9, t:null, when:"Not on a timeline", ry:2014, rn:2014.4543, rel:"2014", tags:["Year unverified"], note:"Japanese series.", fr:"marvel"},
+  {id:"guardians-of-the-galaxy-animated", track:"other", medium:"Animated", title:"Guardians of the Galaxy (animated)", gp:9, t:null, when:"Not on a timeline", ry:2015, rn:2015.4543, rel:"2015–2019", tags:["Year unverified"], fr:"marvel"},
+  {id:"spider-man-2017", track:"other", medium:"Animated", title:"Spider-Man (2017)", gp:9, t:null, when:"Not on a timeline", ry:2017, rn:2017.4543, rel:"2017–2020", fr:"marvel"},
+  {id:"big-hero-6-the-series", track:"other", medium:"Animated", title:"Big Hero 6: The Series", gp:9, t:null, when:"Not on a timeline", ry:2017, rn:2017.4543, rel:"2017–2021", tags:["Year unverified"], fr:"marvel"},
+  {id:"marvels-future-avengers", track:"other", medium:"Animated", title:"Marvel's Future Avengers", gp:9, t:null, when:"Not on a timeline", ry:2017, rn:2017.4543, rel:"2017", tags:["Year unverified"], note:"Japanese series.", fr:"marvel"},
+  {id:"marvel-rising", track:"other", medium:"Animated", title:"Marvel Rising", gp:9, t:null, when:"Not on a timeline", ry:2018, rn:2018.4543, rel:"2018–2019", tags:["Year unverified"], note:"A line of specials and shorts; the TV movie is listed under animated films.", fr:"marvel"},
+  {id:"spidey-and-his-amazing-friends", track:"other", medium:"Animated", title:"Spidey and His Amazing Friends", gp:9, t:null, when:"Not on a timeline", ry:2021, rn:2021.4543, rel:"2021–", tags:["Year unverified"], note:"Disney Jr. preschool series.", fr:"marvel"},
+  {id:"modok", track:"other", medium:"Animated", title:"M.O.D.O.K.", gp:9, t:null, when:"Not on a timeline", ry:2021, rn:2021.4543, rel:"2021", tags:["Year unverified"], note:"Hulu. Whether it is MCU canon is unconfirmed.", fr:"marvel"},
+  {id:"hit-monkey", track:"other", medium:"Animated", title:"Hit-Monkey", gp:9, t:null, when:"Not on a timeline", ry:2021, rn:2021.4543, rel:"2021–2022", tags:["Year unverified"], note:"Hulu. Whether it is MCU canon is unconfirmed.", fr:"marvel"},
+  {id:"baymax", track:"other", medium:"Animated", title:"Baymax!", gp:9, t:null, when:"Not on a timeline", ry:2022, rn:2022.4543, rel:"2022", tags:["Year unverified"], note:"Disney Animation spin-off of Big Hero 6.", fr:"marvel"},
+  {id:"moon-girl-and-devil-dinosaur", track:"other", medium:"Animated", title:"Moon Girl and Devil Dinosaur", gp:9, t:null, when:"Not on a timeline", ry:2023, rn:2023.4543, rel:"2023–2025", tags:["Year unverified"], note:"Disney Channel. Whether it is MCU canon is unconfirmed.", fr:"marvel"},
+  {id:"iron-man-and-his-awesome-friends", track:"other", medium:"Animated", title:"Iron Man and His Awesome Friends", gp:9, t:null, when:"Not on a timeline", ry:2025, rn:2025.4543, rel:"2025–", note:"Disney Jr. preschool series.", fr:"marvel"},
+  {id:"avengers-mightiest-friends", track:"other", medium:"Animated", title:"Avengers: Mightiest Friends", gp:9, t:null, when:"Not on a timeline", ry:2027, rn:2027.4543, rel:"2027", soon:true, status:"Announced", note:"Disney Jr. preschool series, a spin-off of both Spidey series.", fr:"marvel"},
+  {id:"ultimate-avengers", track:"other", medium:"Animated film", title:"Ultimate Avengers", gp:10, t:null, when:"Not on a timeline", ry:2006, rn:2006.4543, rel:"2006", note:"Followed by Ultimate Avengers 2 the same year.", fr:"marvel"},
+  {id:"invincible-iron-man", track:"other", medium:"Animated film", title:"The Invincible Iron Man", gp:10, t:null, when:"Not on a timeline", ry:2007, rn:2007.4543, rel:"2007", fr:"marvel"},
+  {id:"doctor-strange-sorcerer-supreme", track:"other", medium:"Animated film", title:"Doctor Strange: The Sorcerer Supreme", gp:10, t:null, when:"Not on a timeline", ry:2007, rn:2007.4543, rel:"2007", fr:"marvel"},
+  {id:"next-avengers", track:"other", medium:"Animated film", title:"Next Avengers: Heroes of Tomorrow", gp:10, t:null, when:"Not on a timeline", ry:2008, rn:2008.4543, rel:"2008", fr:"marvel"},
+  {id:"hulk-vs", track:"other", medium:"Animated film", title:"Hulk Vs", gp:10, t:null, when:"Not on a timeline", ry:2009, rn:2009.4543, rel:"2009", fr:"marvel"},
+  {id:"planet-hulk", track:"other", medium:"Animated film", title:"Planet Hulk", gp:10, t:null, when:"Not on a timeline", ry:2010, rn:2010.4543, rel:"2010", fr:"marvel"},
+  {id:"thor-tales-of-asgard", track:"other", medium:"Animated film", title:"Thor: Tales of Asgard", gp:10, t:null, when:"Not on a timeline", ry:2011, rn:2011.4543, rel:"2011", fr:"marvel"},
+  {id:"iron-man-rise-of-technovore", track:"other", medium:"Animated film", title:"Iron Man: Rise of Technovore", gp:10, t:null, when:"Not on a timeline", ry:2013, rn:2013.4543, rel:"2013", fr:"marvel"},
+  {id:"iron-man-and-hulk-heroes-united", track:"other", medium:"Animated film", title:"Iron Man & Hulk: Heroes United", gp:10, t:null, when:"Not on a timeline", ry:2013, rn:2013.4543, rel:"2013", fr:"marvel"},
+  {id:"big-hero-6", track:"other", medium:"Animated film", title:"Big Hero 6", gp:10, t:null, when:"Not on a timeline", ry:2014, rn:2014.8495, rel:"Nov 7, 2014", note:"Walt Disney Animation Studios.", fr:"marvel"},
+  {id:"avengers-confidential", track:"other", medium:"Animated film", title:"Avengers Confidential: Black Widow & Punisher", gp:10, t:null, when:"Not on a timeline", ry:2014, rn:2014.4543, rel:"2014", fr:"marvel"},
+  {id:"iron-man-and-captain-america-heroes-united", track:"other", medium:"Animated film", title:"Iron Man & Captain America: Heroes United", gp:10, t:null, when:"Not on a timeline", ry:2014, rn:2014.4543, rel:"2014", fr:"marvel"},
+  {id:"frost-fight", track:"other", medium:"Animated film", title:"Marvel Super Hero Adventures: Frost Fight!", gp:10, t:null, when:"Not on a timeline", ry:2015, rn:2015.4543, rel:"2015", fr:"marvel"},
+  {id:"hulk-where-monsters-dwell", track:"other", medium:"Animated film", title:"Hulk: Where Monsters Dwell", gp:10, t:null, when:"Not on a timeline", ry:2016, rn:2016.4543, rel:"2016", fr:"marvel"},
+  {id:"marvel-rising-secret-warriors", track:"other", medium:"Animated film", title:"Marvel Rising: Secret Warriors", gp:10, t:null, when:"Not on a timeline", ry:2018, rn:2018.4543, rel:"2018", note:"Disney Channel and Disney XD TV movie.", fr:"marvel"},
+  {id:"spidey-and-iron-man-team-up", track:"other", medium:"Special", title:"Spidey and Iron Man: Avengers Team-Up!", gp:10, t:null, when:"Not on a timeline", ry:2025, rn:2025.7903, rel:"Oct 16, 2025", note:"Disney Jr. special.", fr:"marvel"},
+  {id:"spidey-and-the-avengers-halloween", track:"other", medium:"Special", title:"Spidey and the Avengers: Halloween Team-Up!", gp:10, t:null, when:"Not on a timeline", ry:2026, rn:2026.7285, rel:"Sep 24, 2026", note:"Disney Jr. special.", fr:"marvel"}
+];
+DATA.push(...MARVEL_DATA, ...MARVEL_OTHER);
+const MARVEL_EXTRAS = {"notes": ["Chronological order is Disney+'s MCU Timeline Order as reproduced by four guides and cross-checked. Marvel's and Disney+'s own pages could not be opened, so check placements against Disney+'s in-app timeline before relying on them. Ones flagged \"approx\" in mcu-orders.md differ by a year between guides.", "Marvel Television (ABC, Netflix, Hulu, Freeform) has no official phase. Those shows sit in their own lane in phase order and are placed by release year in release order; their in-universe slots follow the Netflix insertion points Disney+ added in 2024. Seasons are shown as one card per series.", "Alternate universes (What If…?, Marvel Zombies, X-Men '97, Your Friendly Neighborhood Spider-Man) are off the main timeline and sit at the end in chronological order. The Fantastic Four: First Steps is on the main timeline by choice: its story is Earth-828, 1964.", "Phase six is the last phase Marvel has formally named. Projects dated after Secret Wars are listed as \"Not yet assigned\".", "Short release dates for the One-Shots and the Team Thor / Team Darryl shorts are approximate. Marvel Television premiere dates come from memory.", "Non-MCU Marvel projects (Fox, Sony, Blade, Howard the Duck, older animation) are not here; they get their own tab."], "sources": [{"label": "Wikipedia — Marvel Cinematic Universe: Phase Four", "url": "https://en.wikipedia.org/wiki/Marvel_Cinematic_Universe:_Phase_Four"}, {"label": "Wikipedia — Marvel Cinematic Universe: Phase Five", "url": "https://en.wikipedia.org/wiki/Marvel_Cinematic_Universe:_Phase_Five"}, {"label": "Wikipedia — Marvel Cinematic Universe: Phase Six", "url": "https://en.wikipedia.org/wiki/Marvel_Cinematic_Universe:_Phase_Six"}, {"label": "Wikipedia — List of Marvel Cinematic Universe films", "url": "https://en.wikipedia.org/wiki/List_of_Marvel_Cinematic_Universe_films"}, {"label": "Wikipedia — List of Marvel Cinematic Universe television series", "url": "https://en.wikipedia.org/wiki/List_of_Marvel_Cinematic_Universe_television_series"}, {"label": "Wikipedia — Marvel Studios Animation", "url": "https://en.wikipedia.org/wiki/Marvel_Studios_Animation"}, {"label": "Man of Many — MCU chronological order", "url": "https://manofmany.com/entertainment/movies-tv/mcu-chronological-order"}, {"label": "Marvel Watch Order — chronological order", "url": "https://marvelwatchorder.com/chronological-order/"}, {"label": "ThePopverse — Marvel movies in order", "url": "https://www.thepopverse.com/movies-tv-marvel-in-order-mcu-cinematic-universe-studios-chronological-release"}, {"label": "What's On Disney+ — Marvel watch order", "url": "https://whatsondisneyplus.com/what-order-to-watch-marvel-on-disney/"}, {"label": "Deadline — X-Men '97 season 2 release date", "url": "https://deadline.com/2026/05/x-men-97-season-2-release-date-trailer-apocalypse-deadpool-1236927946/"}]};
+const MARVEL_OTHER_EXTRAS = {"notes": ["Everything here is Marvel-attached screen work that is not part of the MCU: films and shows made by other studios under licence, Marvel-published imprints, and animation outside the MCU. The MCU, including Marvel Television's Netflix and ABC shows, is on the MCU tab.", "There is no shared timeline across these titles, so they run in release order or grouped by franchise (the By franchise order). The groups are by studio or franchise, not by story.", "Release dates for the films come from the Wikipedia film and television lists and Sony's Spider-Man Universe page, with exact days filled in from general knowledge. Cards marked Year unverified, which is most of the older animation, come from memory and need checking before use.", "The 1994 Fantastic Four film was made for Constantin Film and never officially released, so it has no real release date.", "Spider-Noir, Venom and the other Sony projects reflect Sony's statements through October 2026. Sony said in February 2026 it planned a fresh reboot and in August that no other Spider-Man-character films were in active development; both are recorded as reported.", "Men in Black, Kick-Ass, Kingsman and Powers come from Malibu and Icon, imprints Marvel owned, and are not Marvel-branded. Argylle was left out because it is not based on a Marvel comic.", "M.O.D.O.K., Hit-Monkey and Moon Girl and Devil Dinosaur were made by Marvel's animation and television arms, but whether they are MCU canon is unconfirmed, so they sit here for now.", "Left out: the Lego Marvel shorts, the Marvel Super Heroes 4D attraction shorts, web series such as The Daily Bugle, and unaired pilots such as Marvel's Most Wanted and New Warriors, which were meant for the MCU."], "sources": [{"label": "Wikipedia — List of films based on Marvel Comics publications", "url": "https://en.wikipedia.org/wiki/List_of_films_based_on_Marvel_Comics_publications"}, {"label": "Wikipedia — List of television series based on Marvel Comics", "url": "https://en.wikipedia.org/wiki/List_of_television_series_based_on_Marvel_Comics"}, {"label": "Wikipedia — Sony's Spider-Man Universe", "url": "https://en.wikipedia.org/wiki/Sony%27s_Spider-Man_Universe"}, {"label": "Wikipedia — Marvel Studios Animation", "url": "https://en.wikipedia.org/wiki/Marvel_Studios_Animation"}]};
+const MARVEL_GROUP_NAMES = {"1": "Early years · 1944–1999", "2": "Blade", "3": "Fox's X-Men universe", "4": "Fox: Daredevil, Elektra & Fantastic Four", "5": "Sony: Spider-Man films", "6": "Sony: Spider-Verse & Spider-Man Universe", "7": "Other studios", "8": "Marvel-published imprints", "9": "Animated series", "10": "Animated films & specials"};
+/* ==== END MARVEL ==== */
+
 /* ============================================================
    ERAS — the accent colour is derived from where you are standing
    ============================================================ */
@@ -1095,14 +1437,45 @@ const GOT_ERAS = [
   {max:Infinity, name:"After the Throne",       hue:"#3A4A5E"}
 ];
 
+/* Marvel: t is the in-universe year. In release and phase order the accent follows the phase instead. */
+const MARVEL_ERAS = [
+  {max:1900, name:"Ancient Wakanda",      hue:"#D9A441"},
+  {max:1950, name:"World War II & After", hue:"#8FA66B"},
+  {max:2000, name:"The 1990s",            hue:"#E0609E"},
+  {max:2019, name:"The Infinity Saga",    hue:"#4A90E2"},
+  {max:2025, name:"After the Blip",       hue:"#35A38B"},
+  {max:2027, name:"The Present Day",      hue:"#E8873A"},
+  {max:Infinity, name:"Road to Doomsday", hue:"#E23636"}
+];
+const MARVEL_PHASES = {
+  1:{name:"Phase One",         hue:"#E23636"},
+  2:{name:"Phase Two",         hue:"#F0A030"},
+  3:{name:"Phase Three",       hue:"#4A90E2"},
+  4:{name:"Phase Four",        hue:"#9B6FD0"},
+  5:{name:"Phase Five",        hue:"#35A38B"},
+  6:{name:"Phase Six",         hue:"#E8D44D"},
+  7:{name:"Not yet assigned",  hue:"#9AA4B2"},
+  8:{name:"Marvel Television", hue:"#C0763A"}
+};
+const phaseName = d => (MARVEL_PHASES[d.ph] || {}).name || "";
+
+/* Marvel, non-MCU: titles are grouped by studio or franchise (names come from marvel-other.json) */
+const NONMCU_HUES = {1:"#C9A227", 2:"#D6455D", 3:"#4FA3E0", 4:"#E8873A", 5:"#E23636",
+                     6:"#B58AE0", 7:"#35A38B", 8:"#9AA4B2", 9:"#6FC3D9", 10:"#E0609E"};
+const nonMcuGroup = d => ({name: MARVEL_GROUP_NAMES[d.gp] || "", hue: NONMCU_HUES[d.gp] || "#9AA4B2"});
+/* the label shown for a title's phase (MCU) or group (non-MCU) */
+const groupName = d => d.gp ? nonMcuGroup(d).name : phaseName(d);
+
 function eraOf(item){
   const F = FRANCHISES[fr];
+  if(F.eraFor){ const e = F.eraFor(item, mode); if(e) return e; }
   if(item.t === null) return F.noEra;
   return F.eras.find(e => item.t < e.max) || F.eras[F.eras.length-1];
 }
 
 const GLYPH = {Film:"◈ FILM", Films:"◈ FILMS", Series:"▤ SERIES", Novel:"▣ NOVEL", Legends:"▣ LEGENDS", Anthology:"▤ SHORTS", Game:"▦ GAME",
-  Animated:"▤ ANIMATED", Novella:"▣ NOVELLA", History:"▣ HISTORY", "Lore book":"▣ LORE", Atlas:"▣ ATLAS"};
+  Animated:"▤ ANIMATED", Short:"▤ SHORT", Special:"◈ SPECIAL", "TV film":"◈ TV FILM", "Animated film":"◈ ANIMATED",
+  Serial:"▤ SERIAL", Pilot:"▤ PILOT", Novella:"▣ NOVELLA", History:"▣ HISTORY", "Lore book":"▣ LORE", Atlas:"▣ ATLAS"};
 
 /* ============================================================
    STATE
@@ -1130,16 +1503,29 @@ function sortList(){
   let arr = DATA.filter(d => frOf(d) === fr && d.track === track);
   const sub = curSub();
   if(sub && sub.filter) arr = arr.filter(sub.filter);
-  arr.sort((a,b) => mode === "release"
-    ? (a.ry - b.ry) || (a.t ?? 1e9) - (b.t ?? 1e9)
-    : ((a.t ?? 1e9) - (b.t ?? 1e9)) || (a.ry - b.ry));
+  arr.sort((a,b) =>
+    mode === "group"
+      ? ((a.gp ?? 99) - (b.gp ?? 99)) || (rn(a) - rn(b))
+    : mode === "phase"
+      ? ((a.ph ?? 99) - (b.ph ?? 99)) || (rn(a) - rn(b))
+    : mode === "release"
+      ? (rn(a) - rn(b)) || (a.t ?? 1e9) - (b.t ?? 1e9)
+      : ((a.t ?? 1e9) - (b.t ?? 1e9)) || (!!b.alt - !!a.alt) || (rn(a) - rn(b)));
   return arr;
 }
 
+/* release sort key: a precise date where the title has one (rn), else its year */
+const rn = d => d.rn ?? d.ry;
+
+/* what a card and the strip ends show for the current order */
+const cardLabel = d => mode === "timeline" ? d.when : d.rel;
+const stripText = d => mode === "phase" || mode === "group" ? groupName(d) : cardLabel(d);
+
 /* position 0–100 along the strip, spaced by real distance */
 function positions(){
-  const vals = list.map(d => mode === "release"
-    ? (d.ry === 9999 ? null : d.ry)
+  const vals = list.map((d, i) =>
+    mode === "phase" || mode === "group" ? i  /* grouped orders: space the titles evenly */
+    : mode === "release" ? (d.ry === 9999 ? null : rn(d))
     : (d.t === null ? null : compress(d.t)));
   const known = vals.filter(v => v !== null);
   const lo = Math.min(...known), hi = Math.max(...known);
@@ -1184,7 +1570,7 @@ function buildRail(){
     card.innerHTML = `
       <div class="art${src ? " has-cover" : ""}">
         ${src ? coverImgs(src) : ""}
-        <span class="years">${mode === "release" ? d.rel : d.when}</span>
+        <span class="years">${cardLabel(d)}</span>
         <span class="glyph">${GLYPH[d.medium] || d.medium}</span>
         <div class="rule"></div>
         <div class="name">${d.title}</div>
@@ -1225,9 +1611,8 @@ function layoutTicks(){
     const tk = tickEls.get(d.id);
     if(tk) tk.style.left = pos[i] + "%";
   });
-  $("stripLo").textContent = mode === "release" ? list[0].rel : list[0].when;
-  $("stripHi").textContent = mode === "release"
-    ? list[list.length-1].rel : list[list.length-1].when;
+  $("stripLo").textContent = stripText(list[0]);
+  $("stripHi").textContent = stripText(list[list.length-1]);
 }
 
 function update(animateReadout = true){
@@ -1249,6 +1634,11 @@ function update(animateReadout = true){
     <span>Released ${d.rel}</span>
     ${d.soon ? `<span class="flag">Upcoming</span>` : ""}
     ${d.status ? `<span class="flag quiet">${d.status}</span>` : ""}
+    ${d.lane === "mtv" ? `<span class="flag quiet">Marvel Television</span>` : ""}
+    ${d.alt ? `<span class="flag quiet">Alternate universe</span>` : ""}
+    ${d.ph && d.lane !== "mtv" && mode !== "phase" ? `<span class="flag quiet">${phaseName(d)}</span>` : ""}
+    ${d.gp && mode !== "group" ? `<span class="flag quiet">${groupName(d)}</span>` : ""}
+    ${(d.tags || []).map(t => `<span class="flag quiet">${t}</span>`).join("")}
     ${d.cont ?`<span class="flag quiet">${d.cont}</span>` : ""}
     ${d.kind === "retelling" ? `<span class="flag quiet">Film retelling</span>` : ""}
     ${d.kind === "multiplayer" ? `<span class="flag quiet">Multiplayer</span>` : ""}
@@ -1477,11 +1867,31 @@ const GOT_PANELS = {
    subnavs[track] = tabs; the first is the plain rail. A tab with a
    filter narrows the rail; a tab with a panel replaces it.
    ============================================================ */
-const gotCount = (track, f) => () => DATA.filter(d => frOf(d) === "got" && d.track === track && (!f || f(d))).length;
+const MARVEL_PANELS = {
+  notes: () => `
+    <h2>Notes &amp; sources</h2>
+    <ul class="notes-list">${MARVEL_EXTRAS.notes.map(n => `<li>${n}</li>`).join("")}</ul>
+    <h3>Sources</h3>
+    <ol class="sources">${MARVEL_EXTRAS.sources.map(s =>
+      `<li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`).join("")}</ol>`
+};
+
+MARVEL_PANELS.otherNotes = () => `
+    <h2>Notes &amp; sources</h2>
+    <ul class="notes-list">${MARVEL_OTHER_EXTRAS.notes.map(n => `<li>${n}</li>`).join("")}</ul>
+    <h3>Sources</h3>
+    <ol class="sources">${MARVEL_OTHER_EXTRAS.sources.map(s =>
+      `<li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`).join("")}</ol>`;
+
+const countOf = (key, track, f) => () => DATA.filter(d => frOf(d) === key && d.track === track && (!f || f(d))).length;
+const gotCount = (track, f) => countOf("got", track, f);
+const marvelCount = f => countOf("marvel", "mcu", f);
+const otherCount = f => countOf("marvel", "other", f);
 
 const FRANCHISES = {
   sw: {
-    name: "Star Wars", title: "Star Wars Timeline Deck", order: "BBY / ABY",
+    name: "Star Wars", title: "Star Wars Timeline Deck",
+    modes: [{id:"timeline", label:"BBY / ABY", long:"order"}, {id:"release", label:"Release", long:"order"}],
     eras: ERAS, noEra: NO_ERA,
     /* signed log keeps 25,000 BBY and 9 ABY on the same strip */
     compress: t => Math.sign(t) * Math.log10(1 + Math.abs(t)),
@@ -1501,7 +1911,8 @@ const FRANCHISES = {
     }
   },
   got: {
-    name: "Game of Thrones", title: "Game of Thrones Timeline Deck", order: "AC / BC",
+    name: "Game of Thrones", title: "Game of Thrones Timeline Deck",
+    modes: [{id:"timeline", label:"AC / BC", long:"order"}, {id:"release", label:"Release", long:"order"}],
     eras: GOT_ERAS, noEra: NO_ERA,
     /* AC is dense, BC is vast: linear after the Conquest, log before it */
     compress: t => t >= 0 ? t / 100 : -Math.log10(1 + Math.abs(t) / 100),
@@ -1521,6 +1932,46 @@ const FRANCHISES = {
         {view:"story", label:"Story",          count:gotCount("books", d => d.kind === "story"), filter:d => d.kind === "story"},
         {view:"world", label:"World-building", count:gotCount("books", d => d.kind === "world"), filter:d => d.kind === "world"},
         {view:"notes", label:"Notes &amp; sources", panel:GOT_PANELS.notes}
+      ]
+    }
+  },
+  marvel: {
+    name: "Marvel", title: "Marvel Timeline Deck",
+    modes: [{id:"timeline", label:"Chronological"}, {id:"release", label:"Release", long:"order"}, {id:"phase", label:"Phase", long:"order"}],
+    eras: MARVEL_ERAS, noEra: NO_ERA,
+    /* years: the ancient and 1940s titles are squeezed, 2010 onward gets most of the strip */
+    compress: t => t < 1900 ? (t + 1260) / 3160 * 0.5
+                 : t < 2000 ? 0.5 + (t - 1900) / 100
+                 : 1.5 + (t - 2000) * 0.5,
+    /* release and phase order colour by phase; off-timeline titles get their own labels */
+    eraFor: (item, mode) => {
+      if(item.track === "other") return nonMcuGroup(item);   /* accent by studio or franchise */
+      if(mode !== "timeline") return MARVEL_PHASES[item.ph];
+      if(item.t === null) return item.alt ? {name:"Alternate universes", hue:"#B58AE0"} : {name:"Not yet placed", hue:"#9AA4B2"};
+    },
+    tracks: [
+      {id:"mcu", label:"MCU"},
+      /* everything Marvel-attached outside the MCU: no shared timeline, so no chronological or phase order */
+      {id:"other", label:"Non-MCU",
+       modes: [{id:"release", label:"Release", long:"order"}, {id:"group", label:"By franchise"}]}
+    ],
+    subnavs: {
+      mcu: [
+        {view:"all",      label:"Everything",         count:marvelCount()},
+        {view:"films",    label:"Films",              count:marvelCount(d => d.medium === "Film"),                    filter:d => d.medium === "Film"},
+        {view:"series",   label:"Series &amp; specials", count:marvelCount(d => d.lane !== "mtv" && d.medium !== "Film"), filter:d => d.lane !== "mtv" && d.medium !== "Film"},
+        {view:"mtv",      label:"Marvel Television",  count:marvelCount(d => d.lane === "mtv"),                       filter:d => d.lane === "mtv"},
+        {view:"alt",      label:"Alternate universes", count:marvelCount(d => d.alt),                                  filter:d => d.alt},
+        {view:"upcoming", label:"Upcoming",           count:marvelCount(d => d.soon),                                 filter:d => d.soon},
+        {view:"notes",    label:"Notes &amp; sources", panel:MARVEL_PANELS.notes}
+      ],
+      other: [
+        {view:"all",      label:"Everything",      count:otherCount()},
+        {view:"films",    label:"Films",           count:otherCount(d => d.medium === "Film"),                         filter:d => d.medium === "Film"},
+        {view:"tv",       label:"TV",              count:otherCount(d => d.gp < 9 && d.medium !== "Film"),             filter:d => d.gp < 9 && d.medium !== "Film"},
+        {view:"anim",     label:"Animation",       count:otherCount(d => d.gp >= 9),                                   filter:d => d.gp >= 9},
+        {view:"upcoming", label:"Upcoming",        count:otherCount(d => d.soon),                                      filter:d => d.soon},
+        {view:"notes",    label:"Notes &amp; sources", panel:MARVEL_PANELS.otherNotes}
       ]
     }
   }
@@ -1552,10 +2003,20 @@ function showView(){
   }
 }
 
+/* each track can list its own orders (Marvel's non-MCU tab has no timeline or phases);
+   keep the current order if the new track also has it */
+function buildModes(){
+  const F = FRANCHISES[fr];
+  const modes = (F.tracks.find(t => t.id === track) || {}).modes || F.modes;
+  if(!modes.some(m => m.id === mode)) mode = modes[0].id;
+  $("modeSeg").innerHTML = modes.map(m =>
+    `<button data-mode="${m.id}" aria-pressed="${m.id === mode}">${m.label}${m.long ? `<span class="long"> ${m.long}</span>` : ""}</button>`).join("");
+}
+
 function setTrack(id){
   track = id; index = 0; subView = null;
   [...$("trackSeg").children].forEach(x => x.setAttribute("aria-pressed", x.dataset.track === id));
-  buildSubnav(); showView(); rebuild();
+  buildModes(); buildSubnav(); showView(); rebuild();
 }
 
 function setFranchise(key){
@@ -1568,7 +2029,7 @@ function setFranchise(key){
     `<button data-fr="${k}" aria-pressed="${k === key}">${f.name}</button>`).join("");
   $("trackSeg").innerHTML = F.tracks.map(t =>
     `<button data-track="${t.id}" aria-pressed="false">${t.label}</button>`).join("");
-  $("modeSeg").children[0].innerHTML = `${F.order}<span class="long"> order</span>`;
+  $("trackSeg").hidden = F.tracks.length < 2;
   /* the hash makes a franchise linkable: …/#got */
   try{ history.replaceState(null, "", key === "sw" ? location.pathname + location.search : "#" + key); }catch(e){}
   setTrack(F.tracks[0].id);
