@@ -66,6 +66,26 @@ body{
   background:linear-gradient(180deg,rgba(var(--scrim),.5) 0,rgba(var(--scrim),0) 22%,rgba(var(--scrim),0) 38%,rgba(var(--scrim),.5) 64%,rgba(var(--scrim),.84) 100%);
 }
 .scenes.has-scene::after{opacity:1}
+/* Marvel: a comic page turns away like a leaf, hinged on its left edge, over the next page */
+.scenes{perspective:2400px}
+.scene.leaving{
+  opacity:1;z-index:3;transform:rotateY(-105deg);transform-origin:0 50%;
+  backface-visibility:hidden;filter:brightness(.5);
+  transition:transform 1100ms cubic-bezier(.5,0,.3,1),filter 1100ms ease;
+}
+html[data-fr="marvel"]{--scrim:12,8,10}
+/* lighter shade here so the colour stays punchy; the text zones still get covered */
+html[data-fr="marvel"] .scenes::after{
+  background:linear-gradient(180deg,rgba(var(--scrim),.38) 0,rgba(var(--scrim),0) 20%,rgba(var(--scrim),0) 40%,rgba(var(--scrim),.4) 64%,rgba(var(--scrim),.76) 100%);
+}
+/* Game of Thrones: a parchment map twice as wide as the screen that pans as you move along the timeline.
+   The shade here is parchment-coloured, so it fades the map out behind the dark text instead of darkening it. */
+html[data-fr="got"]{--scrim:205,183,145}
+.scene .far.wide{
+  --mw:max(200vw,355.56vh);                 /* keep the 3200:900 map covering the screen in portrait too */
+  left:0;width:var(--mw);
+  transform:translateX(calc(var(--p,0) * (100vw - var(--mw))));
+}
 
 /* ambient field — accent-tinted, shifts with era */
 body::before{
@@ -1629,7 +1649,7 @@ function eraOf(item){
 const rand = seed => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
 const f1 = n => Math.round(n * 10) / 10;
 const f2 = n => Math.round(n * 100) / 100;
-const sv = (cls, inner) => `<svg class="${cls}" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${inner}</svg>`;
+const sv = (cls, inner, vb = "0 0 1600 900") => `<svg class="${cls}" viewBox="${vb}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${inner}</svg>`;
 const rg = (id, c, a0, a1 = 0) => `<radialGradient id="${id}"><stop offset="0" stop-color="${c}" stop-opacity="${a0}"/><stop offset="1" stop-color="${c}" stop-opacity="${a1}"/></radialGradient>`;
 const lg = (id, stops) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join("")}</linearGradient>`;
 
@@ -1788,33 +1808,187 @@ const SCENES = {
   }
 };
 
+/* Marvel: one comic page per era / phase / group. The id is "pg:<name>|<hue>"; the name picks the panel layout,
+   the hue tints the halftone, hatching and speed lines. */
+let pageSeq = 0;
+const hashStr = s => { let h = 7; for(const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+/* rows of [height share, [panel width shares]] */
+const PAGE_LAYOUTS = [
+  [[.5, [.4, .6]], [.5, [.3, .35, .35]]],
+  [[.33, [1]], [.34, [.5, .5]], [.33, [.25, .25, .5]]],
+  [[.6, [.35, .65]], [.4, [.2, .2, .2, .4]]],
+  [[.45, [.33, .34, .33]], [.55, [.6, .4]]],
+  [[.3, [.5, .5]], [.4, [1]], [.3, [.4, .6]]],
+  [[.5, [.5, .5]], [.5, [.3, .4, .3]]]            /* slanted */
+];
+function comicPage(key){
+  const [name, hue] = key.split("|"), h = hashStr(name), r = rand(h), id = "pg" + (++pageSeq);
+  const li = h % PAGE_LAYOUTS.length, slant = li === 5 ? 46 : 0;
+  const X = 40, Y = 30, W = 1520, H = 840, G = 24, rows = PAGE_LAYOUTS[li], uh = H - (rows.length - 1) * G;
+  const panels = []; let y = Y;
+  rows.forEach(([hf, ws]) => {
+    const rh = uh * hf, uw = W - (ws.length - 1) * G; let x = X;
+    ws.forEach(wf => { panels.push({x, y, w: uw * wf, h: rh}); x += uw * wf + G; });
+    y += rh + G;
+  });
+  const shape = (p, attrs) => slant
+    ? `<polygon points="${f1(p.x + slant)},${f1(p.y)} ${f1(p.x + p.w)},${f1(p.y)} ${f1(p.x + p.w - slant)},${f1(p.y + p.h)} ${f1(p.x)},${f1(p.y + p.h)}" ${attrs}/>`
+    : `<rect x="${f1(p.x)}" y="${f1(p.y)}" width="${f1(p.w)}" height="${f1(p.h)}" ${attrs}/>`;
+  let clips = "", body = "";
+  panels.forEach((p, i) => {
+    const kind = Math.floor(r() * 4), cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+    body += shape(p, `fill="#2a1a1d"`) + shape(p, `fill="url(#${id}g)"`);
+    if(kind === 1) body += shape(p, `fill="url(#${id}d)"`) + shape(p, `fill="url(#${id}f)"`);
+    else if(kind === 2) body += shape(p, `fill="url(#${id}h)"`) + shape(p, `fill="url(#${id}f)" fill-opacity=".5"`);
+    else if(kind === 3){
+      clips += `<clipPath id="${id}c${i}">${shape(p, "")}</clipPath>`;
+      let lines = "";
+      for(let k = 0; k < 28; k++){
+        const a = k * (Math.PI * 2 / 28) + r() * .1, b = a + .05 + r() * .05;
+        lines += `<polygon points="${f1(cx)},${f1(cy)} ${f1(cx + 1400 * Math.cos(a))},${f1(cy + 1400 * Math.sin(a))} ${f1(cx + 1400 * Math.cos(b))},${f1(cy + 1400 * Math.sin(b))}"/>`;
+      }
+      body += `<g clip-path="url(#${id}c${i})" fill="${hue}" fill-opacity=".42">${lines}</g>`;
+    }
+    body += shape(p, `fill="none" stroke="#050304" stroke-width="7"`) + shape(p, `fill="none" stroke="${hue}" stroke-opacity=".8" stroke-width="2"`);
+  });
+  /* a starburst or two floating over the page, off to the edges */
+  let burst = "";
+  for(let b = 0; b < 2; b++){
+    const bx = b ? 1330 + r() * 200 : 80 + r() * 260, by = 120 + r() * 640, pts = [];
+    for(let k = 0; k < 28; k++){ const a = k * Math.PI / 14, rad = k % 2 ? 120 + r() * 40 : 250 + r() * 70; pts.push(`${f1(bx + rad * Math.cos(a))},${f1(by + rad * Math.sin(a))}`); }
+    burst += `<polygon points="${pts.join(" ")}" fill="url(#${id}n)" stroke="${hue}" stroke-opacity=".7" stroke-width="4"/>`;
+  }
+  return sv("far", `
+    <defs>
+      <pattern id="${id}d" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="11" cy="11" r="5" fill="${hue}" fill-opacity=".75"/></pattern>
+      <pattern id="${id}h" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><line x1="0" y1="0" x2="0" y2="14" stroke="${hue}" stroke-opacity=".6" stroke-width="4"/></pattern>
+      <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hue}" stop-opacity=".62"/><stop offset="1" stop-color="${hue}" stop-opacity=".2"/></linearGradient>
+      <linearGradient id="${id}f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
+      ${clips}
+    </defs>
+    <rect width="1600" height="900" fill="#070405"/>${body}`)
+    + sv("near", `<defs><pattern id="${id}n" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="11" cy="11" r="5" fill="${hue}" fill-opacity=".7"/></pattern></defs><g opacity=".8">${burst}</g>`);
+}
+
+/* Game of Thrones: a hand-inked parchment map per era. The id is "map:<era>|<hue>"; the era name seeds the coastline
+   and places, and the hue inks the route and the faded era name across the land. Invented geography, not the books' map. */
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+function coast(r, cx, cy, rx, ry, n = 90){
+  const harm = [0, 1, 2].map(i => ({a: .06 + r() * .1, f: 2 + i * 2 + Math.floor(r() * 3), p: r() * 6.28}));
+  const pts = [];
+  for(let i = 0; i < n; i++){
+    const t = i / n * Math.PI * 2;
+    let k = 1; harm.forEach(q => k += q.a * Math.sin(q.f * t + q.p)); k += (r() - .5) * .05;
+    pts.push([cx + rx * k * Math.cos(t), cy + ry * k * Math.sin(t)]);
+  }
+  let d = `M${f1((pts[n - 1][0] + pts[0][0]) / 2)} ${f1((pts[n - 1][1] + pts[0][1]) / 2)}`;
+  for(let i = 0; i < n; i++){ const p = pts[i], q = pts[(i + 1) % n]; d += `Q${f1(p[0])} ${f1(p[1])} ${f1((p[0] + q[0]) / 2)} ${f1((p[1] + q[1]) / 2)}`; }
+  return d + "Z";
+}
+function parchmentMap(key){
+  const [name, hue] = key.split("|"), h = hashStr(name), r = rand(h), id = "mp" + (++pageSeq), ink = "#3a2a16";
+  const cx = 900 + r() * 1300, cy = 430 + (r() - .5) * 80, rx = 620 + r() * 220, ry = 280 + r() * 60;
+  const lands = [{cx, cy, rx, ry}];
+  for(let i = 0; i < 2; i++){
+    const side = i ? 1 : -1;
+    lands.push({cx: Math.min(3050, Math.max(150, cx + side * (rx + 220 + r() * 180))), cy: 200 + r() * 500, rx: 90 + r() * 110, ry: 70 + r() * 80});
+  }
+  let sea = "", land = "";
+  lands.forEach(L => {
+    const d = coast(r, L.cx, L.cy, L.rx, L.ry);
+    [1.025, 1.05, 1.08].forEach((s, i) => {
+      sea += `<path d="${d}" transform="translate(${L.cx} ${L.cy}) scale(${s}) translate(${-L.cx} ${-L.cy})" fill="none" stroke="${ink}" stroke-opacity="${[.28, .18, .1][i]}" stroke-width="2"${i === 1 ? ' stroke-dasharray="10 7"' : ""}/>`;
+    });
+    land += `<path d="${d}" fill="#e6d6b0" fill-opacity=".9" stroke="${ink}" stroke-opacity=".75" stroke-width="3"/>`;
+  });
+  const inLand = () => [cx + (r() - .5) * rx * 1.15, cy + (r() - .5) * ry * 1.05];
+  let mtn = "", trees = "", marks = "";
+  for(let m = 0; m < 3; m++){
+    let [x, y] = inLand(); const a = r() * Math.PI;
+    for(let k = 0; k < 11; k++){
+      x += Math.cos(a) * 30 + (r() - .5) * 8; y += Math.sin(a) * 14 + (r() - .5) * 8;
+      mtn += `<path d="M${f1(x - 14)} ${f1(y + 9)}L${f1(x)} ${f1(y - 11)}L${f1(x + 14)} ${f1(y + 9)}M${f1(x)} ${f1(y - 11)}L${f1(x + 4)} ${f1(y + 9)}"/>`;
+    }
+  }
+  for(let c = 0; c < 4; c++){
+    const [fx, fy] = inLand();
+    for(let k = 0; k < 18; k++){
+      const x = fx + (r() - .5) * 120, y = fy + (r() - .5) * 70;
+      trees += `<polygon points="${f1(x - 4)},${f1(y + 5)} ${f1(x)},${f1(y - 6)} ${f1(x + 4)},${f1(y + 5)}"/>`;
+    }
+  }
+  for(let k = 0; k < 6; k++){
+    const [x, y] = inLand();
+    marks += `<g transform="translate(${f1(x)} ${f1(y)})"><rect x="-7" y="-6" width="14" height="12"/><rect x="-9" y="-10" width="4" height="6"/><rect x="5" y="-10" width="4" height="6"/></g>`;
+  }
+  const [a0, a1, a2, a3] = [inLand(), inLand(), inLand(), inLand()];
+  const road = `<path d="M${f1(a0[0])} ${f1(a0[1])}Q${f1(a1[0])} ${f1(a1[1])} ${f1(a2[0])} ${f1(a2[1])}" fill="none" stroke="${ink}" stroke-opacity=".5" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 9"/>
+    <path d="M${f1(a2[0])} ${f1(a2[1])}Q${f1(a3[0])} ${f1(a3[1])} ${f1(a0[0] + 60)} ${f1(a0[1] + 40)}" fill="none" stroke="${hue}" stroke-opacity=".6" stroke-width="3" stroke-dasharray="14 10"/>`;
+  let blotch = "";
+  for(let b = 0; b < 8; b++) blotch += `<ellipse cx="${Math.round(r() * 3200)}" cy="${Math.round(r() * 900)}" rx="${Math.round(260 + r() * 300)}" ry="${Math.round(120 + r() * 160)}" fill="url(#${id}b)"/>`;
+  const label = esc(name.toUpperCase()), fs = Math.min(96, Math.round(rx * 1.5 / (label.length * .85)));
+  return sv("far wide", `
+    <defs>
+      <radialGradient id="${id}b"><stop offset="0" stop-color="#7a5a2a" stop-opacity=".12"/><stop offset="1" stop-color="#7a5a2a" stop-opacity="0"/></radialGradient>
+      <filter id="${id}g" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${h % 100}"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .22  0 0 0 0 .1  0 0 0 .28 0"/></filter>
+    </defs>
+    <rect width="3200" height="900" fill="#dac69c"/>${blotch}
+    ${sea}${land}
+    <g fill="none" stroke="${ink}" stroke-opacity=".55" stroke-width="2">${mtn}</g>
+    <g fill="${ink}" fill-opacity=".42">${trees}</g>
+    <g fill="${ink}" fill-opacity=".7">${marks}</g>
+    ${road}
+    <text x="${f1(cx)}" y="${f1(cy + fs / 3)}" text-anchor="middle" transform="rotate(-4 ${f1(cx)} ${f1(cy)})" font-family="'Big Shoulders Display',Impact,sans-serif" font-weight="800" font-size="${fs}" letter-spacing="${f1(fs * .3)}" fill="${hue}" fill-opacity=".24">${label}</text>
+    <rect width="3200" height="900" filter="url(#${id}g)"/>`, "0 0 3200 900")
+    + sv("near", `
+    <defs><radialGradient id="${id}v" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#4a341a" stop-opacity="0"/><stop offset="1" stop-color="#4a341a" stop-opacity=".5"/></radialGradient></defs>
+    <rect width="1600" height="900" fill="url(#${id}v)"/>
+    <rect x="18" y="18" width="1564" height="864" fill="none" stroke="${ink}" stroke-opacity=".45" stroke-width="3"/>
+    <rect x="30" y="30" width="1540" height="840" fill="none" stroke="${ink}" stroke-opacity=".28" stroke-width="1"/>
+    <g transform="translate(1450 470)" fill="none" stroke="${ink}" stroke-opacity=".4" stroke-width="2"><circle r="58"/><circle r="40" stroke-opacity=".25"/>
+      <polygon points="0,-78 10,-10 78,0 10,10 0,78 -10,10 -78,0 -10,-10" fill="${ink}" fill-opacity=".14"/><polygon points="0,-78 10,-10 -10,-10" fill="${ink}" fill-opacity=".4"/></g>`);
+}
+
+const isPage = k => !!k && k.startsWith("pg:");
 let curScene = null;
 function setScene(id){
   if(id === curScene) return;
-  const box = $("scenes");
-  box.classList.toggle("has-scene", !!id);
+  const box = $("scenes"), prevId = curScene, kids = () => [...box.children];
   curScene = id;
-  const find = k => box.querySelector(`.scene[data-scene="${k}"]`);
+  box.classList.toggle("has-scene", !!id);
   if(!id){                                   /* franchise without scenes: fade everything out */
-    box.querySelectorAll(".scene").forEach(el => el.classList.remove("on", "under"));
+    kids().forEach(el => el.classList.remove("on", "under", "leaving"));
     return;
   }
-  let el = find(id);
+  let el = kids().find(e => e.dataset.scene === id);
   if(!el){
     el = document.createElement("div");
     el.className = "scene"; el.dataset.scene = id;
-    el.innerHTML = SCENES[id]();
+    el.innerHTML = isPage(id) ? comicPage(id.slice(3)) : id.startsWith("map:") ? parchmentMap(id.slice(4)) : SCENES[id]();
     box.append(el);
     void el.offsetWidth;                     /* commit opacity:0 so the fade-in runs */
   }
+  clearTimeout(el._t);
+  if(isPage(prevId) && isPage(id)){          /* comic pages: the old page turns away over the new one */
+    const old = kids().find(e => e.dataset.scene === prevId);
+    el.style.transition = "none";
+    el.classList.remove("under", "leaving"); el.classList.add("on");
+    setTimeout(() => { el.style.transition = ""; }, 80);
+    if(old && old !== el){
+      old.classList.remove("on", "under"); old.classList.add("leaving");
+      clearTimeout(old._t);
+      old._t = setTimeout(() => {            /* reset it, unseen, once the turn is done */
+        old.style.transition = "none"; old.classList.remove("leaving"); void old.offsetWidth; old.style.transition = "";
+      }, 1150);
+    }
+    return;
+  }
   /* the scene being replaced stays solid underneath until the new one has faded in */
-  box.querySelectorAll(".scene.on, .scene.under").forEach(o => {
-    if(o === el) return;
-    o.classList.replace(o.classList.contains("on") ? "on" : "under", "under");
+  kids().filter(o => o !== el && (o.classList.contains("on") || o.classList.contains("under"))).forEach(o => {
+    o.classList.remove("on"); o.classList.add("under");
     clearTimeout(o._t);
     o._t = setTimeout(() => { if(curScene !== o.dataset.scene) o.classList.remove("under"); }, 1700);
   });
-  clearTimeout(el._t);
   el.classList.remove("under");
   el.classList.add("on");
 }
@@ -1971,7 +2145,10 @@ function update(animateReadout = true){
   const sceneMap = FRANCHISES[fr].scenes;
   $("scenes").style.setProperty("--p", list.length > 1 ? (index / (list.length - 1)).toFixed(4) : 0);
   if(!sceneMap) setScene(null);
-  else if(sceneMap[era.name]) setScene(sceneMap[era.name]);
+  else{
+    const sc = typeof sceneMap === "function" ? sceneMap(era) : sceneMap[era.name];
+    if(sc) setScene(sc);
+  }
 
   rail.style.setProperty("--i", index);
   [...rail.children].forEach((c,i) => c.classList.toggle("is-active", i === index));
@@ -2273,6 +2450,8 @@ const FRANCHISES = {
     name: "Game of Thrones", title: "Where in the Timeline?! The Stark Side",
     modes: [{id:"timeline", label:"AC / BC", long:"order"}, {id:"release", label:"Release", long:"order"}],
     eras: GOT_ERAS, noEra: NO_ERA,
+    /* a parchment map per era; the map pans across as you scroll */
+    scenes: era => "map:" + era.name + "|" + era.hue,
     /* AC is dense, BC is vast: linear after the Conquest, log before it */
     compress: t => t >= 0 ? t / 100 : -Math.log10(1 + Math.abs(t) / 100),
     tracks: [
@@ -2298,6 +2477,8 @@ const FRANCHISES = {
     name: "Marvel", title: "Where in the Timeline?! The Stark Side",
     modes: [{id:"timeline", label:"Chronological"}, {id:"release", label:"Release", long:"order"}, {id:"phase", label:"Phase", long:"order"}],
     eras: MARVEL_ERAS, noEra: NO_ERA,
+    /* one comic page per era (chronological), phase (release / phase order) or group (non-MCU); the page turns when it changes */
+    scenes: era => "pg:" + era.name + "|" + era.hue,
     /* years: the ancient and 1940s titles are squeezed, 2010 onward gets most of the strip */
     compress: t => t < 1900 ? (t + 1260) / 3160 * 0.5
                  : t < 2000 ? 0.5 + (t - 1900) / 100
