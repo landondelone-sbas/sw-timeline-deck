@@ -553,7 +553,11 @@ body.clean .exit-clean{display:grid;place-items:center}
   .art .name{font-size:18px}
 }
 @media (prefers-reduced-motion:reduce){
-  *{transition-duration:1ms!important;animation-duration:1ms!important}
+  *,*::before,*::after{transition-duration:1ms!important;animation-duration:1ms!important}
+  /* backdrops: no drift as you scroll and no page-turn; the new scene simply replaces the old one.
+     (The GoT map's pan is kept: it is how you see the rest of the map, and it no longer animates.) */
+  .scene .far:not(.wide),.scene .near{transform:none}
+  .scene.leaving{visibility:hidden;transform:none}
 }
 </style>
 </head>
