@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Star Wars Timeline Deck</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Where in the Timeline?! The Stark Side</title>
+<link rel="icon" type="image/png" href="favicon.png?v=2">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -72,13 +72,19 @@ body::before{
   padding:16px 28px;
   border-bottom:1px solid var(--edge);
 }
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{width:52px;height:52px;flex:none;border-radius:9px;display:block}
 .wordmark{
   font-family:var(--f-display);
   font-size:22px;font-weight:800;
   letter-spacing:.14em;text-transform:uppercase;
   line-height:1;
 }
-.wordmark span{color:var(--accent);transition:color 500ms linear}
+.wordmark span{
+  display:block;margin-top:7px;
+  font-size:14px;letter-spacing:.34em;
+  color:var(--accent);transition:color 500ms linear;
+}
 
 .switches{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
@@ -468,7 +474,9 @@ body.clean .exit-clean{display:grid;place-items:center}
   .readout{width:100%;padding-inline:16px}
 
   .deck-head{padding:12px 16px;gap:10px}
-  .wordmark{font-size:20px}
+  .wordmark{font-size:17px;letter-spacing:.1em}
+  .wordmark span{font-size:12px;letter-spacing:.26em;margin-top:6px}
+  .logo{width:44px;height:44px}
   .switches{width:100%;gap:8px}
   .seg button,.ghost-btn{padding:10px 10px;letter-spacing:.08em}
   .fr-seg{flex-basis:100%;margin-right:0}
@@ -515,7 +523,10 @@ body.clean .exit-clean{display:grid;place-items:center}
 <body>
 
 <header class="deck-head">
-  <div class="wordmark">Timeline <span>Deck</span></div>
+  <div class="brand">
+    <img class="logo" src="logo.png" width="52" height="52" alt="">
+    <div class="wordmark">Where in the Timeline?!<span>The Stark Side</span></div>
+  </div>
   <div class="switches">
     <div class="seg fr-seg" id="frSeg" role="group" aria-label="Franchise"></div>
     <div class="seg" id="trackSeg" role="group" aria-label="Collection"></div>
@@ -2010,7 +2021,7 @@ const otherCount = f => countOf("marvel", "other", f);
 
 const FRANCHISES = {
   sw: {
-    name: "Star Wars", title: "Star Wars Timeline Deck",
+    name: "Star Wars", title: "Where in the Timeline?! The Stark Side",
     modes: [{id:"timeline", label:"BBY / ABY", long:"order"}, {id:"release", label:"Release", long:"order"}],
     eras: ERAS, noEra: NO_ERA,
     /* signed log keeps 25,000 BBY and 9 ABY on the same strip */
@@ -2031,7 +2042,7 @@ const FRANCHISES = {
     }
   },
   got: {
-    name: "Game of Thrones", title: "Game of Thrones Timeline Deck",
+    name: "Game of Thrones", title: "Where in the Timeline?! The Stark Side",
     modes: [{id:"timeline", label:"AC / BC", long:"order"}, {id:"release", label:"Release", long:"order"}],
     eras: GOT_ERAS, noEra: NO_ERA,
     /* AC is dense, BC is vast: linear after the Conquest, log before it */
@@ -2056,7 +2067,7 @@ const FRANCHISES = {
     }
   },
   marvel: {
-    name: "Marvel", title: "Marvel Timeline Deck",
+    name: "Marvel", title: "Where in the Timeline?! The Stark Side",
     modes: [{id:"timeline", label:"Chronological"}, {id:"release", label:"Release", long:"order"}, {id:"phase", label:"Phase", long:"order"}],
     eras: MARVEL_ERAS, noEra: NO_ERA,
     /* years: the ancient and 1940s titles are squeezed, 2010 onward gets most of the strip */
