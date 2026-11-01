@@ -25,6 +25,7 @@
 
   --accent:#3F7FD1;         /* driven by era, set at runtime */
   --accent-soft:rgba(63,127,209,.16);
+  --scrim:10,14,21;          /* r,g,b of the shade laid over scene backdrops so text stays readable */
 
   --cardw:260px;
   --gap:28px;
@@ -51,9 +52,25 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
+/* scene backdrops — one procedural SVG scene per stretch of the timeline, crossfaded as the era changes */
+.scenes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.scene{position:absolute;inset:0;z-index:0;opacity:0;transition:opacity 1600ms ease}
+.scene.under{opacity:1;z-index:1}        /* the scene being replaced stays solid until the new one is fully in */
+.scene.on{opacity:1;z-index:2}
+.scene svg{position:absolute;top:0;height:100%;transition:transform var(--dur) var(--ease)}
+/* --p is 0–1 along the current list: the layers drift at different speeds as you scroll */
+.scene .far{left:-3%;width:106%;transform:translateX(calc((var(--p,0) - .5) * -3vw))}
+.scene .near{left:-6%;width:112%;transform:translateX(calc((var(--p,0) - .5) * -6vw))}
+.scenes::after{
+  content:"";position:absolute;inset:0;z-index:3;opacity:0;transition:opacity 1600ms ease;
+  background:linear-gradient(180deg,rgba(var(--scrim),.5) 0,rgba(var(--scrim),0) 22%,rgba(var(--scrim),0) 38%,rgba(var(--scrim),.5) 64%,rgba(var(--scrim),.84) 100%);
+}
+.scenes.has-scene::after{opacity:1}
+
 /* ambient field — accent-tinted, shifts with era */
 body::before{
   content:"";
+  z-index:1;
   position:fixed;inset:0;
   background:
     radial-gradient(120% 70% at 50% 110%, var(--accent-soft), transparent 60%),
@@ -521,6 +538,8 @@ body.clean .exit-clean{display:grid;place-items:center}
 </style>
 </head>
 <body>
+
+<div class="scenes" id="scenes" aria-hidden="true"></div>
 
 <header class="deck-head">
   <div class="brand">
@@ -1603,6 +1622,203 @@ function eraOf(item){
   return F.eras.find(e => item.t < e.max) || F.eras[F.eras.length-1];
 }
 
+/* ============================================================
+   SCENES — procedural SVG backdrops (no image files). FRANCHISES[x].scenes maps an era
+   name to a scene id. Each scene is a far and a near layer; they are built on first use.
+   ============================================================ */
+const rand = seed => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+const f1 = n => Math.round(n * 10) / 10;
+const f2 = n => Math.round(n * 100) / 100;
+const sv = (cls, inner) => `<svg class="${cls}" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${inner}</svg>`;
+const rg = (id, c, a0, a1 = 0) => `<radialGradient id="${id}"><stop offset="0" stop-color="${c}" stop-opacity="${a0}"/><stop offset="1" stop-color="${c}" stop-opacity="${a1}"/></radialGradient>`;
+const lg = (id, stops) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join("")}</linearGradient>`;
+
+function starField(seed, n, {tint = "#fff", ymax = 900, big = 1.6} = {}){
+  const r = rand(seed); let s = "";
+  for(let i = 0; i < n; i++)
+    s += `<circle cx="${Math.round(r() * 1600)}" cy="${Math.round(r() * ymax)}" r="${f2(.35 + r() * r() * big)}" fill="${tint}" opacity="${f2(.2 + r() * .8)}"/>`;
+  return s;
+}
+/* a four-point star glint */
+const glint = (x, y, s, c) =>
+  `<path d="M${x} ${y - s}L${f1(x + s * .14)} ${f1(y - s * .14)}L${x + s} ${y}L${f1(x + s * .14)} ${f1(y + s * .14)}L${x} ${y + s}L${f1(x - s * .14)} ${f1(y + s * .14)}L${x - s} ${y}L${f1(x - s * .14)} ${f1(y - s * .14)}Z" fill="${c}" opacity=".8"/>`;
+/* a row of buildings standing on y0, with optional lit windows */
+function skyline(seed, {y0 = 900, hMin, hMax, wMin, wMax, fill, windows = 0, lit = "#ffd9a0"}){
+  const r = rand(seed); let s = "", x = -30;
+  while(x < 1630){
+    const w = wMin + r() * (wMax - wMin), h = hMin + r() * (hMax - hMin), top = y0 - h;
+    s += `<rect x="${f1(x)}" y="${f1(top)}" width="${f1(w)}" height="${f1(h)}" fill="${fill}"/>`;
+    if(r() < .35){ const sh = 40 + r() * 90; s += `<rect x="${f1(x + w * .42)}" y="${f1(top - sh)}" width="${f1(w * .16)}" height="${f1(sh + 2)}" fill="${fill}"/>`; }
+    if(windows)
+      for(let wy = top + 12; wy < y0 - 6; wy += 15)
+        for(let wx = x + 6; wx < x + w - 8; wx += 11)
+          if(r() < windows) s += `<rect x="${f1(wx)}" y="${f1(wy)}" width="3" height="5" fill="${lit}" opacity="${f2(.25 + r() * .6)}"/>`;
+    x += w + (r() < .3 ? 6 + r() * 14 : 0);
+  }
+  return s;
+}
+/* fan of translucent beams from a point */
+function rays(cx, cy, n, spread, fill){
+  let s = "";
+  for(let k = 0; k < n; k++){
+    const a = k * (Math.PI * 2 / n) + .15, b = a + spread;
+    s += `<polygon points="${cx},${cy} ${Math.round(cx + 2400 * Math.cos(a))},${Math.round(cy + 2400 * Math.sin(a))} ${Math.round(cx + 2400 * Math.cos(b))},${Math.round(cy + 2400 * Math.sin(b))}" fill="${fill}"/>`;
+  }
+  return s;
+}
+
+const SCENES = {
+  /* Dawn of the Jedi, Old Republic: violet nebula over standing ruins */
+  ancient: () => sv("far", `
+    <defs>${lg("an-sky", [[0, "#0a0716"], [.55, "#1a1032"], [1, "#0d0a1c"]])}${rg("an-n1", "#7E6BD1", .38)}${rg("an-n2", "#9A5CC0", .32)}${rg("an-n3", "#2f7f96", .2)}</defs>
+    <rect width="1600" height="900" fill="url(#an-sky)"/>
+    <ellipse cx="420" cy="280" rx="560" ry="250" fill="url(#an-n1)"/>
+    <ellipse cx="1180" cy="420" rx="640" ry="290" fill="url(#an-n2)"/>
+    <ellipse cx="800" cy="680" rx="760" ry="200" fill="url(#an-n3)"/>
+    ${starField(11, 230, {tint: "#E6DDFF"})}`)
+    + sv("near", `
+    <defs>${rg("an-portal", "#B79BFF", .38)}</defs>
+    <path d="M0 900V812Q320 776 700 806T1250 796T1600 806V900Z" fill="#0b0817"/>
+    <ellipse cx="1255" cy="690" rx="78" ry="130" fill="url(#an-portal)"/>
+    <g fill="#0f0a1d" stroke="#9A5CC0" stroke-opacity=".35" stroke-width="1.5">
+      <polygon points="170,812 182,610 196,596 210,610 222,812"/>
+      <polygon points="262,806 270,700 280,690 290,700 298,806"/>
+      <polygon points="1150,800 1160,560 1190,560 1200,800"/>
+      <polygon points="1310,800 1320,560 1350,560 1360,800"/>
+      <rect x="1140" y="538" width="230" height="30"/>
+      <polygon points="1440,806 1452,640 1468,622 1484,640 1496,806"/>
+    </g>`),
+
+  /* High Republic: gold light beams from a beacon, planet limb below */
+  beacon: () => sv("far", `
+    <defs>${lg("hr-sky", [[0, "#050b16"], [.6, "#0e2036"], [1, "#1c2a2e"]])}${rg("hr-glow", "#D9B45B", .42)}</defs>
+    <rect width="1600" height="900" fill="url(#hr-sky)"/>
+    ${rays(1180, 250, 14, .11, "rgba(217,180,91,.055)")}
+    <circle cx="1180" cy="250" r="560" fill="url(#hr-glow)"/>
+    ${starField(23, 200, {tint: "#FFF3D2"})}`)
+    + sv("near", `
+    <ellipse cx="800" cy="1520" rx="1560" ry="720" fill="#0a1626" stroke="#D9B45B" stroke-opacity=".4" stroke-width="2"/>
+    <polygon points="1176,150 1184,150 1188,560 1172,560" fill="#9fb2c4" opacity=".7"/>
+    <rect x="1130" y="560" width="100" height="16" fill="#7f93a6" opacity=".7"/>
+    <ellipse cx="1180" cy="260" rx="78" ry="14" fill="none" stroke="#D9B45B" stroke-opacity=".7" stroke-width="2"/>
+    <ellipse cx="1180" cy="380" rx="52" ry="10" fill="none" stroke="#D9B45B" stroke-opacity=".6" stroke-width="2"/>
+    <circle cx="1180" cy="150" r="7" fill="#FFE9A8"/>`),
+
+  /* Fall of the Jedi: Coruscant towers at dusk with speeder lanes */
+  coruscant: () => sv("far", `
+    <defs>${lg("co-sky", [[0, "#0b0a1e"], [.45, "#2a1a3c"], [.78, "#8d4a2c"], [1, "#d28a45"]])}${rg("co-sun", "#ffb060", .55)}</defs>
+    <rect width="1600" height="900" fill="url(#co-sky)"/>
+    <ellipse cx="470" cy="720" rx="620" ry="260" fill="url(#co-sun)"/>
+    ${starField(5, 60, {ymax: 300})}
+    ${skyline(21, {hMin: 150, hMax: 430, wMin: 30, wMax: 80, fill: "#2e1a36"})}
+    <g stroke="#ffd29a" stroke-width="2" stroke-linecap="round" fill="none" opacity=".55">
+      <path d="M0 470H1600" stroke-dasharray="3 70"/><path d="M0 560H1600" stroke-dasharray="5 46" opacity=".8"/><path d="M0 640H1600" stroke-dasharray="2 34" opacity=".6"/>
+    </g>`)
+    + sv("near", skyline(34, {hMin: 230, hMax: 620, wMin: 50, wMax: 120, fill: "#130a1b", windows: .16})),
+
+  /* Reign of the Empire: a Star Destroyer's hull filling the sky, red glow below */
+  imperial: () => {
+    const L = y => -120 + 710 * (y + 80) / 800, R = y => 1720 - 710 * (y + 80) / 800;
+    let fan = "", bands = "";
+    for(let x = -100; x <= 1700; x += 200) fan += `<line x1="${Math.round(590 + (x + 120) / 1840 * 420)}" y1="720" x2="${x}" y2="-80"/>`;
+    for(let y = 40; y < 700; y += 120) bands += `<line x1="${Math.round(L(y))}" y1="${y}" x2="${Math.round(R(y))}" y2="${y}"/>`;
+    return sv("far", `
+      <defs>${lg("em-sky", [[0, "#1a212c"], [.55, "#2b3544"], [1, "#4a2024"]])}${rg("em-glow", "#C4453C", .4)}</defs>
+      <rect width="1600" height="900" fill="url(#em-sky)"/>
+      <ellipse cx="800" cy="980" rx="1000" ry="420" fill="url(#em-glow)"/>
+      ${starField(31, 70, {tint: "#FFD9D5"})}`)
+      + sv("near", `
+      <defs>${rg("em-red", "#ff4a3c", .5)}</defs>
+      <polygon points="-120,-80 1720,-80 1010,720 590,720" fill="#090c11" stroke="#C4453C" stroke-opacity=".6" stroke-width="3"/>
+      <g stroke="#41505f" stroke-opacity=".9" stroke-width="1.5">${fan}${bands}</g>
+      <line x1="800" y1="-80" x2="800" y2="720" stroke="#1a2029" stroke-width="26"/>
+      <circle cx="612" cy="712" r="24" fill="url(#em-red)"/><circle cx="988" cy="712" r="24" fill="url(#em-red)"/>
+      <circle cx="612" cy="712" r="4" fill="#ff6a5c"/><circle cx="988" cy="712" r="4" fill="#ff6a5c"/>`);
+  },
+
+  /* Age of Rebellion: Tatooine, twin suns sinking behind the dunes */
+  tatooine: () => {
+    const c1 = "M0 640Q300 588 620 626T1200 608T1600 632", c2 = "M0 722Q250 648 560 702T1100 688T1600 712", c3 = "M0 804Q300 742 700 792T1300 770T1600 792";
+    return sv("far", `
+      <defs>${lg("ta-sky", [[0, "#0c0919"], [.38, "#26142b"], [.62, "#79391f"], [.7, "#c47a40"]])}${rg("ta-glow", "#ffb765", .4)}${rg("ta-s1", "#fff1c8", 1, 0)}</defs>
+      <rect width="1600" height="900" fill="url(#ta-sky)"/>
+      ${starField(7, 90, {ymax: 380, tint: "#FFE9CF"})}
+      <circle cx="1085" cy="600" r="420" fill="url(#ta-glow)"/>
+      <circle cx="1060" cy="592" r="96" fill="url(#ta-s1)" opacity=".55"/><circle cx="1128" cy="606" r="70" fill="url(#ta-s1)" opacity=".4"/>
+      <circle cx="1060" cy="592" r="30" fill="#fff1c8"/><circle cx="1128" cy="606" r="21" fill="#ffd9a0"/>
+      <path d="${c1}V900H0Z" fill="#6b3a1f"/>`)
+      + sv("near", `
+      <path d="${c2}V900H0Z" fill="#46261a"/><path d="${c2}" fill="none" stroke="#d99044" stroke-opacity=".45" stroke-width="2"/>
+      <path d="${c3}V900H0Z" fill="#271409"/><path d="${c3}" fill="none" stroke="#d99044" stroke-opacity=".35" stroke-width="2"/>`);
+  },
+
+  /* New Republic: a quiet teal starfield and a ringed planet */
+  quiet: () => sv("far", `
+    <defs>${lg("nr-sky", [[0, "#040b0c"], [.6, "#08191b"], [1, "#0d2a2b"]])}
+      <radialGradient id="nr-pl" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#4fb8a8"/><stop offset=".6" stop-color="#14504d"/><stop offset="1" stop-color="#06191a"/></radialGradient></defs>
+    <rect width="1600" height="900" fill="url(#nr-sky)"/>
+    ${starField(47, 260, {tint: "#CFFFF4"})}
+    <g transform="translate(1250 300) rotate(-14)">
+      <path d="M-200 0A200 36 0 0 1 200 0" fill="none" stroke="#7fd6c6" stroke-opacity=".35" stroke-width="3"/>
+      <circle r="92" fill="url(#nr-pl)"/>
+      <path d="M-200 0A200 36 0 0 0 200 0" fill="none" stroke="#7fd6c6" stroke-opacity=".5" stroke-width="3"/>
+    </g>`)
+    + sv("near", `
+    <defs>${rg("nr-mist", "#2fa193", .2)}</defs>
+    <ellipse cx="800" cy="960" rx="1000" ry="260" fill="url(#nr-mist)"/>
+    ${glint(700, 760, 16, "#cffff4")}${glint(620, 120, 11, "#cffff4")}${glint(900, 340, 13, "#cffff4")}${glint(430, 520, 9, "#cffff4")}${glint(1480, 600, 12, "#cffff4")}`),
+
+  /* Rise of the First Order, New Jedi Order: Crait's red salt flats under a black sky */
+  crait: () => {
+    let radial = "", cross = "";
+    for(let i = 0; i <= 26; i++) radial += `<line x1="800" y1="590" x2="${-1400 + i * 140}" y2="900"/>`;
+    for(let k = 1; k <= 11; k++){ const y = Math.round(590 + 310 * Math.pow(k / 11, 2.2)); cross += `<line x1="0" y1="${y}" x2="1600" y2="${y}"/>`; }
+    return sv("far", `
+      <defs>${lg("cr-sky", [[0, "#030208"], [1, "#1a0910"]])}${lg("cr-ground", [[0, "#a8323f"], [.35, "#6a1c28"], [1, "#2a0a12"]])}${rg("cr-hz", "#ffd6da", .35)}</defs>
+      <rect width="1600" height="620" fill="url(#cr-sky)"/>
+      ${starField(41, 150, {ymax: 540, tint: "#FFE0E4"})}
+      <polygon points="0,600 120,560 260,586 420,548 560,590 760,572 980,596 1180,552 1340,588 1500,560 1600,582 1600,620 0,620" fill="#1a0a10"/>
+      <rect y="590" width="1600" height="310" fill="url(#cr-ground)"/>
+      <ellipse cx="800" cy="592" rx="900" ry="50" fill="url(#cr-hz)"/>`)
+      + sv("near", `
+      <g stroke="#f6cdd2" stroke-opacity=".16" stroke-width="1.2">${radial}</g>
+      <g stroke="#f6cdd2" stroke-opacity=".12" stroke-width="1.2">${cross}</g>
+      <polygon points="0,900 0,800 70,830 150,780 240,840 300,900" fill="#12060a"/>
+      <polygon points="1600,900 1600,780 1520,820 1450,770 1380,830 1330,900" fill="#12060a"/>`);
+  }
+};
+
+let curScene = null;
+function setScene(id){
+  if(id === curScene) return;
+  const box = $("scenes");
+  box.classList.toggle("has-scene", !!id);
+  curScene = id;
+  const find = k => box.querySelector(`.scene[data-scene="${k}"]`);
+  if(!id){                                   /* franchise without scenes: fade everything out */
+    box.querySelectorAll(".scene").forEach(el => el.classList.remove("on", "under"));
+    return;
+  }
+  let el = find(id);
+  if(!el){
+    el = document.createElement("div");
+    el.className = "scene"; el.dataset.scene = id;
+    el.innerHTML = SCENES[id]();
+    box.append(el);
+    void el.offsetWidth;                     /* commit opacity:0 so the fade-in runs */
+  }
+  /* the scene being replaced stays solid underneath until the new one has faded in */
+  box.querySelectorAll(".scene.on, .scene.under").forEach(o => {
+    if(o === el) return;
+    o.classList.replace(o.classList.contains("on") ? "on" : "under", "under");
+    clearTimeout(o._t);
+    o._t = setTimeout(() => { if(curScene !== o.dataset.scene) o.classList.remove("under"); }, 1700);
+  });
+  clearTimeout(el._t);
+  el.classList.remove("under");
+  el.classList.add("on");
+}
+
 const GLYPH = {Film:"◈ FILM", Films:"◈ FILMS", Series:"▤ SERIES", Novel:"▣ NOVEL", Legends:"▣ LEGENDS", Anthology:"▤ SHORTS", Game:"▦ GAME",
   Animated:"▤ ANIMATED", Short:"▤ SHORT", Special:"◈ SPECIAL", "TV film":"◈ TV FILM", "Animated film":"◈ ANIMATED",
   Serial:"▤ SERIAL", Pilot:"▤ PILOT", Novella:"▣ NOVELLA", History:"▣ HISTORY", "Lore book":"▣ LORE", Atlas:"▣ ATLAS"};
@@ -1750,6 +1966,12 @@ function update(animateReadout = true){
 
   document.documentElement.style.setProperty("--accent", era.hue);
   document.documentElement.style.setProperty("--accent-soft", era.hue + "28");
+
+  /* backdrop: a franchise without scenes clears it; an era with no scene of its own (off-timeline titles) keeps the last one */
+  const sceneMap = FRANCHISES[fr].scenes;
+  $("scenes").style.setProperty("--p", list.length > 1 ? (index / (list.length - 1)).toFixed(4) : 0);
+  if(!sceneMap) setScene(null);
+  else if(sceneMap[era.name]) setScene(sceneMap[era.name]);
 
   rail.style.setProperty("--i", index);
   [...rail.children].forEach((c,i) => c.classList.toggle("is-active", i === index));
@@ -2024,6 +2246,12 @@ const FRANCHISES = {
     name: "Star Wars", title: "Where in the Timeline?! The Stark Side",
     modes: [{id:"timeline", label:"BBY / ABY", long:"order"}, {id:"release", label:"Release", long:"order"}],
     eras: ERAS, noEra: NO_ERA,
+    /* era name → backdrop scene (see SCENES) */
+    scenes: {
+      "Dawn of the Jedi":"ancient", "Old Republic":"ancient", "High Republic":"beacon",
+      "Fall of the Jedi":"coruscant", "Reign of the Empire":"imperial", "Age of Rebellion":"tatooine",
+      "New Republic":"quiet", "Rise of the First Order":"crait", "New Jedi Order":"crait"
+    },
     /* signed log keeps 25,000 BBY and 9 ABY on the same strip */
     compress: t => Math.sign(t) * Math.log10(1 + Math.abs(t)),
     tracks: [
